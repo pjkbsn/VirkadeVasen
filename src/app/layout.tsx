@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import ConditionalHeader from "@/components/client/conditional-header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,15 +20,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html
+      lang="en"
+      className={`dark ${geistSans.variable} ${geistMono.variable}`}
+    >
+      <body>
+        <ConditionalHeader />
+
+        <main>{children}</main>
+
+        <footer className="bg-slate-800 p-4 text-white mt-8 text-center">
+          © 2025 My Application
+        </footer>
       </body>
     </html>
   );
