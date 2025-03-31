@@ -5,15 +5,15 @@ import Link from "next/link";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
-  //   const isHomePage = pathname === "/";
+  const isHomePage = pathname === "/";
 
   // Debug - remove this later
   console.log("Current pathname:", pathname);
-  //   console.log("Is homepage?", isHomePage);
+  console.log("Is homepage?", isHomePage);
 
-  //   if (isHomePage) {
-  //     return null;
-  //   }
+  if (isHomePage) {
+    return null;
+  }
 
   return (
     <header className="bg-slate-800 p-4 text-white">
