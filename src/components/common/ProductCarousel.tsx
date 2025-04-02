@@ -26,29 +26,32 @@ export const ProductCarousel = () => {
         loop: true,
         slidesToScroll: 1,
       }}
-      className="w-350"
+      className="grid grid-cols-[auto_1fr] items-center gap-4 w-full h-auto md:h-[25rem] lg:h-[30rem]"
     >
-      <CarouselContent className="-ml-4">
+      {/* Column 1: Navigation arrows */}
+      <div className="col-start-1 flex flex-col justify-center gap-4 w-20 bg-black ">
+        <CarouselPrevious className="relative inset-0 translate-x-0 translate-y-0 h-10 w-10 bg-white hover:bg-gray-100 text-black">
+          <ChevronLeft className="h-5 w-5" />
+        </CarouselPrevious>
+        <CarouselNext className="relative inset-0 translate-x-0 translate-y-0 h-10 w-10 bg-white hover:bg-gray-100 text-black">
+          <ChevronRight className="h-5 w-5" />
+        </CarouselNext>
+      </div>
+
+      {/* Column 2: Carousel content */}
+      <CarouselContent className="col-start-2 h-full">
         {carouselItems.map((item) => (
           <CarouselItem
             key={item.id}
-            className="pl-4 md:basis-1/3 lg:basis-1/4"
+            className="pl-4 md:basis-1/3 lg:basis-1/4 h-full"
           >
-            <div className="p-1">
-              <Card>
-                <CardContent className="flex aspect-square items-center justify-center p-0">
-                  <div className="relative w-full h-full">
+            <div className="p-1 h-full">
+              <Card className="h-full md:h-[25rem] lg:h-[30rem]">
+                <CardContent className="flex p-0 h-full">
+                  <div className="w-full h-full">
                     {/* Use a placeholder or your actual images */}
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center text-black">
                       {item.content}
-                      {/* Uncomment when you have images
-                      <Image 
-                        src={item.image} 
-                        alt={item.title} 
-                        fill 
-                        className="object-cover" 
-                      />
-                      */}
                     </div>
                   </div>
                 </CardContent>
@@ -57,14 +60,6 @@ export const ProductCarousel = () => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <div className="hidden md:block">
-        <CarouselPrevious className="absolute top-2/2 -left-30 transform -translate-y-1/2 bg-black text-black border border-gray-200 rounded-full p-2 focus:ring-2 focus:ring-gray-200 focus:outline-none">
-          <ChevronLeft className="h-5 w-5" />
-        </CarouselPrevious>
-        <CarouselNext className="absolute top-2/2 -left-20 transform -translate-y-1/2 bg-black text-black border border-gray-200 rounded-full p-2 focus:ring-2 focus:ring-gray-200 focus:outline-none">
-          <ChevronRight className="h-5 w-5" />
-        </CarouselNext>
-      </div>
     </Carousel>
   );
 };
