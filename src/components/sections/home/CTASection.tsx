@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export const CTASection = () => {
   return (
-    <section className="relative h-[70vh] w-full snap-start">
+    <section className="relative h-[70vh]">
       <div className="absolute inset-0 z-0">
         <Image
           src="/footer.jpg" // Replace with your image path
