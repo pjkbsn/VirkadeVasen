@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Italianno } from "next/font/google";
-import ConditionalHeader from "@/components/layout/conditional-header";
 import "./globals.css";
+import ConditionalHeader from "@/components/layout/conditional-header";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
     >
-      <body>
-        <ConditionalHeader />
-        <main>{children}</main>
+      <body className="flex flex-col min-h-screen h-full">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ConditionalHeader />
+          <main className="h-[calc(100vh-80px)]">{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );
