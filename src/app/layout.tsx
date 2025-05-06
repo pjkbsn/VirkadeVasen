@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Italianno } from "next/font/google";
 import "./globals.css";
 import ConditionalHeader from "@/components/layout/conditional-header";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { SuccessMessage } from "@/components/common/SuccessMessage";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,7 +45,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ConditionalHeader />
-          <main className="h-[calc(100vh-80px)]">{children}</main>
+          <main className="h-[calc(100vh-80px)]">
+            {children}
+            <SuccessMessage />
+          </main>
         </ThemeProvider>
       </body>
     </html>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CartButton } from "./header/CartButton";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { LogOut, CircleUserRound } from "lucide-react";
+import { CircleUserRound } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { UserMenu } from "./header/UserMenu";
@@ -13,7 +13,7 @@ import { UserMenu } from "./header/UserMenu";
 export default function Header() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
-  const { user, signOut } = useAuthStore();
+  const { user } = useAuthStore();
 
   return (
     <header
