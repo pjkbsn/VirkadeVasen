@@ -1,6 +1,6 @@
 // store/authStore.ts
 import { create } from "zustand";
-import { User } from "@supabase/supabase-js";
+import { AuthError, User } from "@supabase/supabase-js";
 import { getCurrentUser, signIn, signOut, signUp } from "@/lib/auth";
 
 interface AuthState {
@@ -13,9 +13,15 @@ interface AuthState {
   setEmailExists: (exists: boolean) => void;
   setSuccess: (message: string | null) => void;
   clearError: () => void;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<{ error: any }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<{ error: AuthError | null }>;
   initialize: () => Promise<void>;
 }
 

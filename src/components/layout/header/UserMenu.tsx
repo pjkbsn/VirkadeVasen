@@ -7,9 +7,21 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { CircleUserRound } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const UserMenu = () => {
   const { signOut } = useAuthStore();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+
+    if (!error) {
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
+    }
+  };
 
   return (
     <Popover>
@@ -22,7 +34,7 @@ export const UserMenu = () => {
           <Link href="/account">Account</Link>
           <Link href="/orders">Mina ordrar</Link>
           <Link href="/settings">Inställningar</Link>
-          <Button onClick={signOut} className="hover:cursor-pointer">
+          <Button onClick={handleSignOut} className="hover:cursor-pointer">
             Logga ut
           </Button>
         </div>
