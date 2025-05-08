@@ -36,6 +36,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
+      style={{ "--header-height": "80px" } as React.CSSProperties}
     >
       <body className="flex flex-col min-h-screen h-full">
         <ThemeProvider
@@ -45,7 +46,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ConditionalHeader />
-          <main className="h-[calc(100vh-80px)]">
+          <main className="h-[calc(100vh-var(--header-height))]">
             {children}
             <SuccessMessage />
           </main>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -10,7 +12,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export const UserMenu = () => {
-  const { signOut } = useAuthStore();
+  const { signOut, isAdmin } = useAuthStore();
+
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -34,6 +37,7 @@ export const UserMenu = () => {
           <Link href="/account">Account</Link>
           <Link href="/orders">Mina ordrar</Link>
           <Link href="/settings">Inställningar</Link>
+          {isAdmin && <Link href="/admin">Admin</Link>}
           <Button onClick={handleSignOut} className="hover:cursor-pointer">
             Logga ut
           </Button>
