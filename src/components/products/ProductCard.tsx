@@ -1,33 +1,40 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 import Image from "next/image";
+import Link from "next/link";
 
-export const ProductCard = () => {
+interface ProductCardProps {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  colorName?: string;
+}
+
+export function ProductCard({
+  id,
+  name,
+  price,
+  imageUrl,
+  colorName,
+}: ProductCardProps) {
   return (
-    <Card className="w-70 h-90 grid grid-rows-2 border-0 shadow-none">
-      <CardHeader>
-        <Image
-          src="/cat.jpg"
-          alt="Cat"
-          width={250}
-          height={250}
-          quality={90}
-          className="object-scale-down"
-        />
-      </CardHeader>
-      <div className="mt-3.5">
-        <CardContent>Virkade väsen</CardContent>
-        <CardFooter className="flex justify-between">
-          <p>Katt(svart)</p> <p>350kr</p>
-        </CardFooter>
+    <Link href={`/products/${id}`}>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden transition hover:shadow-lg">
+        <div className="relative aspect-square">
+          <Image
+            src={imageUrl}
+            alt={`${name} - ${colorName || ""}`}
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="font-medium">Namn: {name}</h3>
+          {colorName && (
+            <p className="text-sm text-gray-500">Color: {colorName}</p>
+          )}
+          <p className="font-bold mt-2">{price} kr</p>
+        </div>
       </div>
-    </Card>
+    </Link>
   );
-};
+}
