@@ -1,61 +1,71 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
+
+// import { createClient } from "@/utils/supabase/server";
 import { ProductCard } from "@/components/products/ProductCard";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
+import { ProductFilter } from "@/components/products/ProductFilter";
+import { useState, useEffect } from "react";
+import { ProductVariant } from "@/types";
+import { useProducts } from "@/hooks/useProducts";
 
-interface ProductVariant {
-  id: string;
-  price: number;
-  stock: number;
-  image_url: string | null;
-  color_id: string;
-  product: {
-    // This is an array, not a single object
-    id: string;
-    name: string;
-    description: string;
-  }[];
-  color?: {
-    // This is also an array
-    name: string;
-  }[];
-}
+export default function ProductPage() {
+  const [products, setProducts] = useState<ProductVariant[] | null>(null);
+  const { getProducts, loading, error } = useProducts();
 
-export default async function ProductPage() {
-  const supabase = createClient(cookies());
+  console.log("Products: ", products);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const data = await getProducts();
+      console.log("Data: ", data);
+      if (data) {
+        setProducts(data);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  const { data, error } = await supabase.from("product_variants").select(`
-    id, 
-    price, 
-    stock, 
-    image_url, 
-    color_id,
-    products:product_id(id, name, description), 
-    colors:color_id(name)
-  `);
-
-  if (error) {
-    console.error("Error fetching products:", error);
-    return <div>Failed to load products.</div>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error)
+    return <p>Error: {typeof error === "string" ? error : error.message}</p>;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-      {(data as any[])?.map((variant) => {
-        console.log("Rendering variant:", variant.id);
-        console.log("Product data for this variant:", variant.products);
-        console.log("Color data for this variant:", variant.colors);
+    <>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Våra produkter</h1>
+        <p className="text-gray-600">
+          Utforska vårt sortiment av handgjorda produkter skapade med omsorg och
+          kärlek.
+        </p>
+      </div>
 
-        return (
-          <ProductCard
-            key={variant.id}
-            id={variant.id}
-            name={variant.products?.name || "Unknown"} // Access as object
-            price={variant.price || 0}
-            imageUrl={variant.image_url || "/placeholder.png"}
-            colorName={variant.colors?.name || ""} // Access as object
-          />
-        );
-      })}
-    </div>
+      {/* Filter/category sidebar and product content area */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <aside className="md:col-span-1 space-y-6">
+          <ProductFilter />
+        </aside>
+
+        {/* Main content area where products will be displayed */}
+        <main className="md:col-span-3">
+          {" "}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+            {products &&
+              products?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.products?.name || "Unknown"} // Access as object
+                  price={product.price || 0}
+                  imageUrl={
+                    product.image_url?.length
+                      ? product.image_url[0]
+                      : "No image available"
+                  }
+                  colorName={product.colors?.name || ""} // Access as object
+                />
+              ))}
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

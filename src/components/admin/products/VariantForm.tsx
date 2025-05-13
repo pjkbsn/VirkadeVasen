@@ -26,6 +26,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { ImagesUpload } from "./ImagesUpload";
 
 // Define schema for form validation
 const formSchema = z.object({
@@ -37,7 +38,7 @@ const formSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val === "" ? "0" : val)),
-  image_url: z.string().optional(),
+  image_url: z.string().array().optional(),
 });
 
 type Color = {
@@ -53,7 +54,7 @@ type VariantFormProps = {
     color_id: string;
     price: string;
     stock: string;
-    image_url?: string;
+    image_url?: string[];
   };
   onSuccess?: () => void;
 };
@@ -74,7 +75,7 @@ export const VariantForm = ({
       color_id: variant?.color_id || "",
       price: variant?.price || "",
       stock: variant?.stock || "0",
-      image_url: variant?.image_url || "",
+      image_url: Array.isArray(variant?.image_url) ? variant.image_url : [],
     },
   });
 
@@ -100,6 +101,10 @@ export const VariantForm = ({
     fetchColors();
   }, []);
 
+  const handleImagesUpdated = (urls: string[]) => {
+    form.setValue("image_url", urls);
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!productId) {
       toast.error("No product ID provided");
@@ -116,7 +121,7 @@ export const VariantForm = ({
         color_id: values.color_id,
         price: parseFloat(values.price),
         stock: parseInt(values.stock || "0"),
-        image_url: values.image_url || "/placeholder-variant.jpg", // Default placeholder
+        image_url: values.image_url,
       };
 
       if (isEditing && variant?.id) {
@@ -225,22 +230,24 @@ export const VariantForm = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="image_url"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bild URL (valfri)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="https://example.com/image.jpg"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="space-y-2">
+            <FormLabel>Product Images</FormLabel>
+            <ImagesUpload
+              productId={productId}
+              variantId={variant?.id}
+              currentImageUrls={form.getValues().image_url}
+              onImagesUpdated={handleImagesUpdated}
+            />
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={() => (
+                <FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (

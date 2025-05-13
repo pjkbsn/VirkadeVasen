@@ -26,6 +26,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { ImagesUpload } from "./ImagesUpload";
 
 const variantSchema = z.object({
   color_id: z.string().min(1, { message: "Färg krävs" }),
@@ -36,6 +37,7 @@ const variantSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val === "" ? "0" : val)),
+  image_url: z.string().array().optional(),
 });
 
 const formSchema = z.object({
@@ -58,6 +60,7 @@ type ProductFormProps = {
       color_id: string;
       price: string;
       stock: string;
+      image_url: string[];
     }[];
   };
   onSuccess?: (productId: string | undefined) => void;
@@ -90,7 +93,7 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
       variants:
         product?.variants && product?.variants?.length > 0
           ? product.variants
-          : [{ color_id: "", price: "", stock: "0" }],
+          : [{ color_id: "", price: "", stock: "0", image_url: [] }],
     },
   });
 
@@ -130,6 +133,10 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
 
     fetchData();
   }, []);
+
+  const handleImagesUpdated = (index: number) => (urls: string[]) => {
+    form.setValue(`variants.${index}.image_url`, urls);
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
@@ -205,11 +212,13 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
           if (deleteVariantsError) throw deleteVariantsError;
         }
 
+        // In ProductForm.tsx onSubmit function
         const variantsToInsert = values.variants.map((variant) => ({
           product_id: productId,
           color_id: variant.color_id,
           price: parseFloat(variant.price),
           stock: parseInt(variant.stock || "0"),
+          image_url: Array.isArray(variant.image_url) ? variant.image_url : [], // Ensure it's an array
         }));
 
         const { error: variantsError } = await supabase
@@ -416,6 +425,25 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
                             {...field}
                           />
                         </FormControl>
+                        <div className="h-5">
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`variants.${index}.image_url`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bilder</FormLabel>
+                        <ImagesUpload
+                          productId={product?.id || "new"}
+                          variantId={`variant-${index}`}
+                          currentImageUrls={field.value}
+                          onImagesUpdated={handleImagesUpdated(index)}
+                        />
                         <div className="h-5">
                           <FormMessage />
                         </div>

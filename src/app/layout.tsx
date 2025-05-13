@@ -46,7 +46,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ConditionalHeader />
-          <main className="h-[calc(100vh-var(--header-height))]">
+          <main className="h-[calc(100vh-var(--header-height))] overflow-y-auto hide-scrollbar">
             {children}
             <SuccessMessage />
           </main>
