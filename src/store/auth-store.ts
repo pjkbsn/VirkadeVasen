@@ -8,9 +8,8 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   success: string | null;
-  emailExists: boolean;
+  isAdmin: boolean;
 
-  setEmailExists: (exists: boolean) => void;
   setSuccess: (message: string | null) => void;
   clearError: () => void;
   signIn: (
@@ -25,13 +24,12 @@ interface AuthState {
   initialize: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>()((set) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   loading: true,
   error: null,
   success: null,
-  emailExists: false,
-  setEmailExists: (exists) => set({ emailExists: exists }),
+  isAdmin: false,
   setSuccess: (message) => set({ success: message }), // Ifall vill implementera customsuccess message
   clearError: () => set({ error: null }), //Ifall behöver rensa error meddelande
 
@@ -39,7 +37,14 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ loading: true, error: null });
     try {
       const currentUser = await getCurrentUser();
-      set({ user: currentUser, loading: false });
+      const adminStatus = currentUser
+        ? currentUser?.app_metadata?.role === "admin"
+        : false;
+      set({
+        user: currentUser,
+        isAdmin: adminStatus,
+        loading: false,
+      });
     } catch (err: any) {
       set({ error: err.message, loading: false });
     }
@@ -49,8 +54,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ loading: true, error: null });
     const result = await signIn(email, password);
     if (!result.error && result.data?.user) {
+      const adminStatus = result.data.user?.app_metadata?.role === "admin";
       set({
         user: result.data.user,
+        isAdmin: adminStatus,
         loading: false,
         success: "Du loggas nu in",
       });
@@ -64,8 +71,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ loading: true, error: null });
     const result = await signUp(email, password);
     if (!result.error && result.data?.user) {
+      const adminStatus = result.data.user?.app_metadata?.role === "admin";
       set({
         user: result.data.user,
+        isAdmin: adminStatus,
         loading: false,
         success: "Verifiering har skickats till din email!",
       });
@@ -79,7 +88,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ loading: true, error: null });
     const result = await signOut();
     if (!result.error) {
-      set({ user: null, loading: false, success: "Du loggas nu ut" });
+      set({
+        user: null,
+        isAdmin: false,
+        loading: false,
+        success: "Du loggas nu ut",
+      });
     } else {
       set({ error: result.error?.message, loading: false });
     }

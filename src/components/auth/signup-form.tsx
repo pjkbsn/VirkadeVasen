@@ -15,7 +15,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useEmailStore } from "@/store/email-store";
 import { useAuthStore } from "@/store/auth-store";
 
 const formSchema = z
@@ -41,15 +40,14 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-export default function SignupForm() {
+export const SignupForm = () => {
   const { signUp, loading, error, success } = useAuthStore();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const { email } = useEmailStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: email || "",
+      email: "",
       password: "",
       confirmPassword: "",
     },
@@ -157,4 +155,4 @@ export default function SignupForm() {
       </form>
     </Form>
   );
-}
+};

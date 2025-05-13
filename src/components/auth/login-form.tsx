@@ -23,7 +23,7 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Lösenord krävs" }),
 });
 
-export default function LoginForm() {
+export const LoginForm = () => {
   const { signIn } = useAuthStore();
   const router = useRouter();
 
@@ -77,4 +77,4 @@ export default function LoginForm() {
       </form>
     </Form>
   );
-}
+};
