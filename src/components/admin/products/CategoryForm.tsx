@@ -63,13 +63,13 @@ export const CategoryForm = ({ parentId, onSuccess }: CategoryFormProps) => {
           description: "",
           parentId: parentId || undefined,
         });
+        onSuccess();
       }
     } catch (error) {
       console.error("Failed to add category: ", error);
       toast.error("Kunde inte skapa kategori");
     } finally {
       setIsSubmitting(false);
-      onSuccess();
     }
   };
 

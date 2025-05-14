@@ -29,6 +29,8 @@ import { toast } from "sonner";
 import { ImagesUpload } from "./ImagesUpload";
 import { CategoryFormDialog } from "./CategoryFormDialog";
 import { useCategoryStore } from "@/store/category-store";
+import { useColorStore } from "@/store/color-store";
+import { ColorFormDialog } from "./ColorFormDialog";
 
 const variantSchema = z.object({
   color_id: z.string().min(1, { message: "Färg krävs" }),
@@ -68,14 +70,7 @@ type ProductFormProps = {
   onSuccess?: (productId: string | undefined) => void;
 };
 
-type Color = {
-  id: string;
-  name: string;
-  hex_code?: string;
-};
-
 export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
-  const [colors, setColors] = useState<Color[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const { categories, getCategories, getChildCategories, getParentCategories } =
@@ -85,6 +80,13 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
   useEffect(() => {
     getCategories();
   }, [getCategories]);
+  const [showColorModal, setShowColorModal] = useState(false);
+  const { colors, getColors } = useColorStore();
+
+  // Initialize colors
+  useEffect(() => {
+    getColors();
+  }, [getColors]);
 
   const router = useRouter();
   const isEditing = !!product;
@@ -109,28 +111,6 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
     name: "variants",
     control: form.control,
   });
-
-  // Fetch colors on component mount
-  useEffect(() => {
-    const fetchColors = async () => {
-      const supabase = createClient();
-      try {
-        // Only fetch colors, categories come from the hook
-        const { data: colorsData, error: colorsError } = await supabase
-          .from("colors")
-          .select("id, name, hex_code")
-          .order("display_order");
-
-        if (colorsError) throw colorsError;
-        setColors(colorsData || []);
-      } catch (error: any) {
-        console.error("Error fetching colors:", error);
-        toast.error("Failed to load color data");
-      }
-    };
-
-    fetchColors();
-  }, []);
 
   const handleImagesUpdated = (index: number) => (urls: string[]) => {
     form.setValue(`variants.${index}.image_url`, urls);
@@ -407,10 +387,24 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
                     name={`variants.${index}.color_id`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Färg</FormLabel>
+                        <FormLabel>
+                          <span>Färg</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setShowColorModal(true);
+                            }}
+                            className="text-blue-600 hover:bg-transparent hover:text-blue-600 hover:cursor-pointer"
+                          >
+                            + Ny färg
+                          </Button>
+                        </FormLabel>
                         <Select
+                          key={colors.length}
+                          value={field.value || ""}
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -421,23 +415,17 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
                             {colors.map((color) => (
                               <SelectItem key={color.id} value={color.id}>
                                 <div className="flex items-center gap-2">
-                                  {color.hex_code && (
-                                    <div
-                                      className="w-4 h-4 rounded-full"
-                                      style={{
-                                        backgroundColor: color.hex_code,
-                                      }}
-                                    />
-                                  )}
+                                  <div
+                                    className="w-4 h-4 rounded-full border"
+                                    style={{ backgroundColor: color.hex_code }}
+                                  />
                                   {color.name}
                                 </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <div className="h-5">
-                          <FormMessage />
-                        </div>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -535,6 +523,7 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
         onOpenChange={setShowCategoryModal}
         parentId={selectedCategoryId}
       />
+      <ColorFormDialog open={showColorModal} onOpenChange={setShowColorModal} />
     </Card>
   );
 };
