@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ImagesUpload } from "./ImagesUpload";
+import { useColorStore } from "@/store/color-store";
 
 // Define schema for form validation
 const formSchema = z.object({
@@ -64,8 +65,14 @@ export const VariantForm = ({
   variant,
   onSuccess,
 }: VariantFormProps) => {
-  const [colors, setColors] = useState<Color[]>([]);
+  // const [colors, setColors] = useState<Color[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { colors, getColors } = useColorStore();
+
+  // Initialize colors
+  useEffect(() => {
+    getColors();
+  }, [getColors]);
   const router = useRouter();
   const isEditing = !!variant;
 
@@ -80,26 +87,26 @@ export const VariantForm = ({
   });
 
   // Fetch colors on component mount
-  useEffect(() => {
-    const fetchColors = async () => {
-      const supabase = createClient();
+  // useEffect(() => {
+  //   const fetchColors = async () => {
+  //     const supabase = createClient();
 
-      try {
-        const { data: colorsData, error: colorsError } = await supabase
-          .from("colors")
-          .select("id, name, hex_code")
-          .order("display_order");
+  //     try {
+  //       const { data: colorsData, error: colorsError } = await supabase
+  //         .from("colors")
+  //         .select("id, name, hex_code")
+  //         .order("name");
 
-        if (colorsError) throw colorsError;
-        setColors(colorsData || []);
-      } catch (error: any) {
-        console.error("Error fetching colors:", error);
-        toast.error("Failed to load colors");
-      }
-    };
+  //       if (colorsError) throw colorsError;
+  //       setColors(colorsData || []);
+  //     } catch (error: any) {
+  //       console.error("Error fetching colors:", error);
+  //       toast.error("Failed to load colors");
+  //     }
+  //   };
 
-    fetchColors();
-  }, []);
+  //   fetchColors();
+  // }, []);
 
   const handleImagesUpdated = (urls: string[]) => {
     form.setValue("image_url", urls);
