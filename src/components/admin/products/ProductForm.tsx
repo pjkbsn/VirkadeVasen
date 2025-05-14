@@ -24,9 +24,11 @@ import {
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { CornerDownRight, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ImagesUpload } from "./ImagesUpload";
+import { CategoryFormDialog } from "./CategoryFormDialog";
+import { useCategoryStore } from "@/store/category-store";
 
 const variantSchema = z.object({
   color_id: z.string().min(1, { message: "Färg krävs" }),
@@ -66,11 +68,6 @@ type ProductFormProps = {
   onSuccess?: (productId: string | undefined) => void;
 };
 
-type Category = {
-  id: string;
-  name: string;
-};
-
 type Color = {
   id: string;
   name: string;
@@ -78,9 +75,17 @@ type Color = {
 };
 
 export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
-  const [categories, setCategories] = useState<Category[]>([]);
   const [colors, setColors] = useState<Color[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const { categories, getCategories, getChildCategories, getParentCategories } =
+    useCategoryStore();
+
+  const parentCategories = getParentCategories();
+  useEffect(() => {
+    getCategories();
+  }, [getCategories]);
+
   const router = useRouter();
   const isEditing = !!product;
 
@@ -95,29 +100,22 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
           ? product.variants
           : [{ color_id: "", price: "", stock: "0", image_url: [] }],
     },
+    mode: "onSubmit",
   });
+
+  const selectedCategoryId = form.watch("categoryId");
 
   const { fields, append, remove } = useFieldArray({
     name: "variants",
     control: form.control,
   });
 
-  // Fetch categories and colors on component mount
+  // Fetch colors on component mount
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchColors = async () => {
       const supabase = createClient();
-
       try {
-        // Fetch categories
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from("categories")
-          .select("id, name")
-          .order("name");
-
-        if (categoriesError) throw categoriesError;
-        setCategories(categoriesData || []);
-
-        // Fetch colors
+        // Only fetch colors, categories come from the hook
         const { data: colorsData, error: colorsError } = await supabase
           .from("colors")
           .select("id, name, hex_code")
@@ -126,12 +124,12 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
         if (colorsError) throw colorsError;
         setColors(colorsData || []);
       } catch (error: any) {
-        console.error("Error fetching form data:", error);
-        toast.error("Failed to load form data");
+        console.error("Error fetching colors:", error);
+        toast.error("Failed to load color data");
       }
     };
 
-    fetchData();
+    fetchColors();
   }, []);
 
   const handleImagesUpdated = (index: number) => (urls: string[]) => {
@@ -265,7 +263,6 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="description"
@@ -289,31 +286,87 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
           <FormField
             control={form.control}
             name="categoryId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Kategori</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Välj kategori" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="h-5">
-                  <FormMessage />
-                </div>
-              </FormItem>
-            )}
+            render={({ field }) => {
+              // Check if selected category is a child category
+              const isChildCategory =
+                selectedCategoryId &&
+                categories.some(
+                  (cat) => cat.id === selectedCategoryId && cat.parent_id
+                );
+
+              return (
+                <FormItem>
+                  <FormLabel>
+                    <span>Kategori</span>
+                    {!isChildCategory && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowCategoryModal(true);
+                        }}
+                        className="text-blue-600 hover:bg-transparent hover:text-blue-600 hover:cursor-pointer"
+                      >
+                        {selectedCategoryId
+                          ? "+ Ny underkategori"
+                          : "+ Ny kategori"}
+                      </Button>
+                    )}
+                  </FormLabel>
+                  <Select
+                    key={categories.length}
+                    value={field.value || ""}
+                    onValueChange={(value) => {
+                      if (value === "clear-option") {
+                        field.onChange("");
+                      } else {
+                        field.onChange(value);
+                      }
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Välj kategori" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {field.value && (
+                        <SelectItem
+                          value="clear-option"
+                          className="text-destructive"
+                        >
+                          -- Ta bort val --
+                        </SelectItem>
+                      )}
+                      {parentCategories.map((parent) => (
+                        <div key={parent.id}>
+                          {/* Parent category */}
+                          <SelectItem value={parent.id} className="font-medium">
+                            {parent.name}
+                          </SelectItem>
+
+                          {/* Child categories - indented */}
+                          {getChildCategories(parent.id).map((child) => (
+                            <SelectItem
+                              key={child.id}
+                              value={child.id}
+                              className="pl-6 text-sm border-gray-200"
+                            >
+                              <CornerDownRight />
+                              {child.name}
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="h-5">
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              );
+            }}
           />
 
           <div className="border-t pt-6">
@@ -477,6 +530,11 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
           </div>
         </form>
       </Form>
+      <CategoryFormDialog
+        open={showCategoryModal}
+        onOpenChange={setShowCategoryModal}
+        parentId={selectedCategoryId}
+      />
     </Card>
   );
 };
