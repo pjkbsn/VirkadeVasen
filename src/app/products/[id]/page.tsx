@@ -19,7 +19,8 @@ import { ProductCard } from "@/components/products/ProductCard";
 export default function ProductDetails() {
   const [product, setProduct] = useState<ProductVariant | null>(null);
   const [allVariants, setAllVariants] = useState<ProductVariant[] | null>(null);
-  const { getProduct, loading, error, getAllProductVariants } = useProducts();
+  const { getProductVariant, loading, error, getVariantsByProductId } =
+    useProducts();
   const { id } = useParams();
 
   console.log("Product: ", product);
@@ -28,7 +29,7 @@ export default function ProductDetails() {
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const data = await getProduct(id);
+      const data = await getProductVariant(id);
       console.log("Data: ", data);
       if (data) {
         setProduct(data);
@@ -40,7 +41,7 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchVariants = async () => {
       if (product?.products.id) {
-        const data = await getAllProductVariants(product?.products.id);
+        const data = await getVariantsByProductId(product?.products.id);
         console.log("Alla varianter inuti useEffect: ", data);
         if (data) {
           const filteredData = data.filter((p) => p.id !== product.id);

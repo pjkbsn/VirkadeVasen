@@ -19,3 +19,23 @@ export type ProductVariant = {
   products: Product;
   colors: Colors;
 };
+
+export type CreateProduct = {
+  name: string;
+  description?: string;
+};
+
+export type CreateProductVariant = {
+  product_id: string; // Note this matches your DB schema
+  color_id: string;
+  price: number;
+  stock: number;
+  image_url?: string[];
+};
+
+export type UpdateProductVariant = Partial<{
+  color_id: string;
+  price: number;
+  stock: number;
+  image_url: string[];
+}>;

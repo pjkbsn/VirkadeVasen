@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -22,73 +22,43 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
-import { CornerDownRight, Loader2, Plus, Trash2 } from "lucide-react";
+import { CornerDownRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { ImagesUpload } from "./ImagesUpload";
 import { CategoryFormDialog } from "./CategoryFormDialog";
 import { useCategoryStore } from "@/store/category-store";
-import { useColorStore } from "@/store/color-store";
-import { ColorFormDialog } from "./ColorFormDialog";
-
-const variantSchema = z.object({
-  color_id: z.string().min(1, { message: "Färg krävs" }),
-  price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: "Pris måste vara ett positivt nummer",
-  }),
-  stock: z
-    .string()
-    .optional()
-    .transform((val) => (val === "" ? "0" : val)),
-  image_url: z.string().array().optional(),
-});
+import { useProducts } from "@/hooks/useProducts";
+import { Product, CreateProduct } from "@/types";
+import { useProductFormStore } from "@/store/productform-store";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Namn på produkten krävs" }),
   description: z.string().optional(),
   categoryId: z.string().min(1, { message: "Kategori krävs" }),
-  variants: z
-    .array(variantSchema)
-    .min(1, { message: "Minst en variant krävs" }),
 });
 
 type ProductFormProps = {
-  product?: {
-    id: string;
-    name: string;
-    description?: string;
-    categoryId?: string;
-    variants?: {
-      id: string;
-      color_id: string;
-      price: string;
-      stock: string;
-      image_url: string[];
-    }[];
-  };
-  onSuccess?: (productId: string | undefined) => void;
+  product?: Product & { categoryId?: string };
+  onSuccess?: (productId: string) => void;
+  onVariantClick?: () => void;
 };
 
-export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
+export const ProductForm = ({
+  product,
+  onSuccess,
+  onVariantClick,
+}: ProductFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const { createProduct, updateProduct, updateProductCategory } = useProducts();
   const { categories, getCategories, getChildCategories, getParentCategories } =
     useCategoryStore();
+  const { setProductData, setProductId } = useProductFormStore();
 
   const parentCategories = getParentCategories();
   useEffect(() => {
     getCategories();
   }, [getCategories]);
-  const [showColorModal, setShowColorModal] = useState(false);
-  const { colors, getColors } = useColorStore();
 
-  // Initialize colors
-  useEffect(() => {
-    getColors();
-  }, [getColors]);
-
-  const router = useRouter();
   const isEditing = !!product;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -97,130 +67,84 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
       name: product?.name || "",
       description: product?.description || "",
       categoryId: product?.categoryId || "",
-      variants:
-        product?.variants && product?.variants?.length > 0
-          ? product.variants
-          : [{ color_id: "", price: "", stock: "0", image_url: [] }],
     },
     mode: "onSubmit",
   });
 
   const selectedCategoryId = form.watch("categoryId");
 
-  const { fields, append, remove } = useFieldArray({
-    name: "variants",
-    control: form.control,
-  });
-
-  const handleImagesUpdated = (index: number) => (urls: string[]) => {
-    form.setValue(`variants.${index}.image_url`, urls);
-  };
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
 
     try {
-      const supabase = createClient();
-
       // Step 1: Create/update product
       let productId = product?.id;
-      let productResult;
-
       if (isEditing && productId) {
-        productResult = await supabase
-          .from("products")
-          .update({
-            name: values.name,
-            description: values.description,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", productId)
-          .select()
-          .single();
+        const productData: Product = {
+          id: productId,
+          name: values.name,
+          description: values.description || "",
+        };
+        const result = await updateProduct(productData);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update product");
+        }
       } else {
-        productResult = await supabase
-          .from("products")
-          .insert({
-            name: values.name,
-            description: values.description,
-          })
-          .select()
-          .single();
+        const productData: CreateProduct = {
+          name: values.name,
+          description: values.description,
+        };
+        const result = await createProduct(productData);
+        if (result.error) {
+          throw new Error(result.error || "Failed to create product");
+        }
+        productId = result.id;
       }
-
-      if (productResult.error) {
-        console.error("Product error:", productResult.error);
-        throw new Error(`Product error: ${productResult.error.message}`);
-      }
-
-      productId = productResult.data.id;
 
       // Step 2: Handle categories
-      try {
-        if (isEditing) {
-          const { error: deleteError } = await supabase
-            .from("product_categories")
-            .delete()
-            .eq("product_id", productId);
-
-          if (deleteError) throw deleteError;
+      if (productId) {
+        setProductId(productId);
+        const categoryResult = await updateProductCategory(
+          productId,
+          values.categoryId
+        );
+        if (!categoryResult.success) {
+          throw new Error(
+            categoryResult.error || "Failed to update category association"
+          );
         }
-
-        const { error: categoryError } = await supabase
-          .from("product_categories")
-          .insert({
-            product_id: productId,
-            category_id: values.categoryId,
-          });
-
-        if (categoryError) throw categoryError;
-      } catch (catError: any) {
-        console.error("Category association error:", catError);
-        throw new Error(`Category association error: ${catError.message}`);
       }
 
-      // Step 3: Handle variants
-      try {
-        if (isEditing) {
-          const { error: deleteVariantsError } = await supabase
-            .from("product_variants")
-            .delete()
-            .eq("product_id", productId);
-
-          if (deleteVariantsError) throw deleteVariantsError;
-        }
-
-        // In ProductForm.tsx onSubmit function
-        const variantsToInsert = values.variants.map((variant) => ({
-          product_id: productId,
-          color_id: variant.color_id,
-          price: parseFloat(variant.price),
-          stock: parseInt(variant.stock || "0"),
-          image_url: Array.isArray(variant.image_url) ? variant.image_url : [], // Ensure it's an array
-        }));
-
-        const { error: variantsError } = await supabase
-          .from("product_variants")
-          .insert(variantsToInsert);
-
-        if (variantsError) throw variantsError;
-      } catch (varError: any) {
-        console.error("Variant error:", varError);
-        throw new Error(`Variant error: ${varError.message}`);
-      }
-
+      // Success handling
       toast.success(isEditing ? "Product updated!" : "Product created!");
 
       if (productId && onSuccess) {
         onSuccess(productId);
-      } else {
-        router.push(`/admin/products`);
       }
     } catch (error: any) {
       console.error("Form submission error:", error);
       toast.error(error.message || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleVariantClick = async () => {
+    const isValid = await form.trigger();
+
+    if (isValid) {
+      const formValues = form.getValues();
+      setProductData({
+        name: formValues.name,
+        description: formValues.description,
+        categoryId: formValues.categoryId,
+      });
+
+      if (onVariantClick) {
+        onVariantClick();
+      }
+    } else {
+      toast.error("Vänligen åtgärda felen innan du fortsätter");
     }
   };
 
@@ -277,7 +201,7 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
               return (
                 <FormItem>
                   <FormLabel>
-                    <span>Kategori</span>
+                    Kategori
                     {!isChildCategory && (
                       <Button
                         type="button"
@@ -349,161 +273,8 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
             }}
           />
 
-          <div className="border-t pt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Produktvarianter</h3>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => append({ color_id: "", price: "", stock: "0" })}
-              >
-                <Plus className="h-4 w-4 mr-1" /> Lägg till variant
-              </Button>
-            </div>
-
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="border rounded-lg p-4 mb-4 bg-gray-50"
-              >
-                <div className="flex justify-between mb-2">
-                  <h4 className="font-medium">Variant {index + 1}</h4>
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" /> Ta bort
-                    </Button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`variants.${index}.color_id`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          <span>Färg</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setShowColorModal(true);
-                            }}
-                            className="text-blue-600 hover:bg-transparent hover:text-blue-600 hover:cursor-pointer"
-                          >
-                            + Ny färg
-                          </Button>
-                        </FormLabel>
-                        <Select
-                          key={colors.length}
-                          value={field.value || ""}
-                          onValueChange={field.onChange}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Välj färg" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {colors.map((color) => (
-                              <SelectItem key={color.id} value={color.id}>
-                                <div className="flex items-center gap-2">
-                                  <div
-                                    className="w-4 h-4 rounded-full border"
-                                    style={{ backgroundColor: color.hex_code }}
-                                  />
-                                  {color.name}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`variants.${index}.price`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pris (kr)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            {...field}
-                          />
-                        </FormControl>
-                        <div className="h-5">
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`variants.${index}.stock`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Lager</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            {...field}
-                          />
-                        </FormControl>
-                        <div className="h-5">
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`variants.${index}.image_url`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bilder</FormLabel>
-                        <ImagesUpload
-                          productId={product?.id || "new"}
-                          variantId={`variant-${index}`}
-                          currentImageUrls={field.value}
-                          onImagesUpdated={handleImagesUpdated(index)}
-                        />
-                        <div className="h-5">
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
-
-            {form.formState.errors.variants?.message && (
-              <p className="text-sm font-medium text-destructive mt-2">
-                {form.formState.errors.variants.message}
-              </p>
-            )}
-          </div>
-
-          <div className="pt-4">
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <div className="pt-4 flex justify-evenly">
+            <Button type="submit" className="w-1/4" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -515,6 +286,13 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
                 "Skapa produkt"
               )}
             </Button>
+            <Button
+              type="button"
+              className="w-1/4"
+              onClick={handleVariantClick}
+            >
+              Lägg till variant
+            </Button>
           </div>
         </form>
       </Form>
@@ -523,7 +301,6 @@ export const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
         onOpenChange={setShowCategoryModal}
         parentId={selectedCategoryId}
       />
-      <ColorFormDialog open={showColorModal} onOpenChange={setShowColorModal} />
     </Card>
   );
 };

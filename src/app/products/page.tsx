@@ -10,12 +10,12 @@ import { useProducts } from "@/hooks/useProducts";
 
 export default function ProductPage() {
   const [products, setProducts] = useState<ProductVariant[] | null>(null);
-  const { getProducts, loading, error } = useProducts();
+  const { getProductVariants, loading, error } = useProducts();
 
   console.log("Products: ", products);
   useEffect(() => {
     const fetchProducts = async () => {
-      const data = await getProducts();
+      const data = await getProductVariants();
       console.log("Data: ", data);
       if (data) {
         setProducts(data);

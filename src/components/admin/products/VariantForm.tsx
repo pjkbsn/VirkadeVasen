@@ -22,12 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ImagesUpload } from "./ImagesUpload";
 import { useColorStore } from "@/store/color-store";
+import { ColorFormDialog } from "./ColorFormDialog";
+import { useProducts } from "@/hooks/useProducts";
+import { useProductFormStore } from "@/store/productform-store";
 
 // Define schema for form validation
 const formSchema = z.object({
@@ -42,14 +44,7 @@ const formSchema = z.object({
   image_url: z.string().array().optional(),
 });
 
-type Color = {
-  id: string;
-  name: string;
-  hex_code?: string;
-};
-
 type VariantFormProps = {
-  productId: string;
   variant?: {
     id: string;
     color_id: string;
@@ -60,13 +55,21 @@ type VariantFormProps = {
   onSuccess?: () => void;
 };
 
-export const VariantForm = ({
-  productId,
-  variant,
-  onSuccess,
-}: VariantFormProps) => {
-  // const [colors, setColors] = useState<Color[]>([]);
+export const VariantForm = ({ variant, onSuccess }: VariantFormProps) => {
+  const {
+    createProductVariant,
+    updateProductVariant,
+    createProduct,
+    updateProductCategory,
+    error,
+    loading,
+  } = useProducts();
+  const { productData, isCreatingVariant, setProductId, productId } =
+    useProductFormStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showColorModal, setShowColorModal] = useState(false);
+
+  console.log("ProductData: ", productData);
   const { colors, getColors } = useColorStore();
 
   // Initialize colors
@@ -86,45 +89,70 @@ export const VariantForm = ({
     },
   });
 
-  // Fetch colors on component mount
-  // useEffect(() => {
-  //   const fetchColors = async () => {
-  //     const supabase = createClient();
-
-  //     try {
-  //       const { data: colorsData, error: colorsError } = await supabase
-  //         .from("colors")
-  //         .select("id, name, hex_code")
-  //         .order("name");
-
-  //       if (colorsError) throw colorsError;
-  //       setColors(colorsData || []);
-  //     } catch (error: any) {
-  //       console.error("Error fetching colors:", error);
-  //       toast.error("Failed to load colors");
-  //     }
-  //   };
-
-  //   fetchColors();
-  // }, []);
-
   const handleImagesUpdated = (urls: string[]) => {
     form.setValue("image_url", urls);
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!productId) {
-      toast.error("No product ID provided");
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      const supabase = createClient();
+      // Step 1: Create Product if necessary
+      let currentProductId = productId;
 
+      if (!currentProductId && productData && isCreatingVariant) {
+        // We need to create the product first
+        console.log("Creating product from stored data:", productData);
+
+        if (!productData.name) {
+          throw new Error("Product name is required");
+        }
+
+        const result = await createProduct({
+          name: productData.name,
+          description: productData.description,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create product");
+        }
+
+        currentProductId = result.id;
+
+        if (!currentProductId) {
+          throw new Error("Failed to get product ID after creation");
+        }
+
+        // Save the new ID in the store
+        setProductId(currentProductId);
+
+        // If we have a category, associate it
+        if (productData.categoryId) {
+          const categoryResult = await updateProductCategory(
+            currentProductId,
+            productData.categoryId
+          );
+
+          if (!categoryResult.success) {
+            throw new Error(
+              categoryResult.error || "Failed to update category association"
+            );
+          }
+        }
+
+        // Show success for product creation
+        toast.success("Product created successfully!");
+      }
+
+      // Step 2: Verify we have a product ID
+      if (!currentProductId) {
+        toast.error("No product ID available. Please create a product first.");
+        return;
+      }
+
+      // Step 3: Create/Update variant
       const variantData = {
-        product_id: productId,
+        product_id: currentProductId,
         color_id: values.color_id,
         price: parseFloat(values.price),
         stock: parseInt(values.stock || "0"),
@@ -133,27 +161,25 @@ export const VariantForm = ({
 
       if (isEditing && variant?.id) {
         // Update existing variant
-        const { error } = await supabase
-          .from("product_variants")
-          .update(variantData)
-          .eq("id", variant.id);
-
-        if (error) throw error;
-        toast.success("Variant updated");
+        const result = await updateProductVariant(variantData, variant.id);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update variant");
+        }
+        toast.success("Variant updated successfully");
       } else {
         // Create new variant
-        const { error } = await supabase
-          .from("product_variants")
-          .insert(variantData);
-
-        if (error) throw error;
-        toast.success("Variant created");
+        const result = await createProductVariant(variantData);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create variant");
+        }
+        toast.success("Variant created successfully");
       }
 
+      // Step 4: Success handling
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(`/admin/products/${productId}`);
+        router.push(`/admin/products`);
       }
     } catch (error: any) {
       console.error("Error submitting variant:", error);
@@ -172,10 +198,24 @@ export const VariantForm = ({
             name="color_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Färg</FormLabel>
+                <FormLabel>
+                  Färg
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowColorModal(true);
+                    }}
+                    className="text-blue-600 hover:bg-transparent hover:text-blue-600 hover:cursor-pointer"
+                  >
+                    + Ny färg
+                  </Button>
+                </FormLabel>
                 <Select
+                  key={colors.length}
+                  value={field.value || ""}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -186,12 +226,10 @@ export const VariantForm = ({
                     {colors.map((color) => (
                       <SelectItem key={color.id} value={color.id}>
                         <div className="flex items-center gap-2">
-                          {color.hex_code && (
-                            <div
-                              className="w-4 h-4 rounded-full"
-                              style={{ backgroundColor: color.hex_code }}
-                            />
-                          )}
+                          <div
+                            className="w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: color.hex_code }}
+                          />
                           {color.name}
                         </div>
                       </SelectItem>
@@ -237,24 +275,26 @@ export const VariantForm = ({
             )}
           />
 
-          <div className="space-y-2">
-            <FormLabel>Product Images</FormLabel>
-            <ImagesUpload
-              productId={productId}
-              variantId={variant?.id}
-              currentImageUrls={form.getValues().image_url}
-              onImagesUpdated={handleImagesUpdated}
-            />
-            <FormField
-              control={form.control}
-              name="image_url"
-              render={() => (
-                <FormItem>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="image_url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Produkt Bilder</FormLabel>
+                <FormControl>
+                  <div>
+                    <ImagesUpload
+                      productId={productId}
+                      variantId={variant?.id}
+                      currentImageUrls={field.value}
+                      onImagesUpdated={handleImagesUpdated}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
@@ -270,6 +310,7 @@ export const VariantForm = ({
           </Button>
         </form>
       </Form>
+      <ColorFormDialog open={showColorModal} onOpenChange={setShowColorModal} />
     </Card>
   );
 };
