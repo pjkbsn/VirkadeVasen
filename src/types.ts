@@ -1,7 +1,12 @@
-export type Product = {
+export type ProductGroups = {
   id: string;
   name: string;
   description: string;
+};
+
+export type CreateProductGroups = {
+  name: string;
+  description?: string;
 };
 
 export type Colors = {
@@ -10,30 +15,25 @@ export type Colors = {
   hex_code?: string;
 };
 
-export type ProductVariant = {
+export type Product = {
   id: string;
   price: number;
   stock: number;
   image_url: string[] | null;
   color_id: string;
-  products: Product;
+  product_groups: ProductGroups;
   colors: Colors;
 };
 
 export type CreateProduct = {
-  name: string;
-  description?: string;
-};
-
-export type CreateProductVariant = {
-  product_id: string; // Note this matches your DB schema
+  product_groups_id: string; // Note this matches your DB schema
   color_id: string;
   price: number;
   stock: number;
   image_url?: string[];
 };
 
-export type UpdateProductVariant = Partial<{
+export type UpdateProduct = Partial<{
   color_id: string;
   price: number;
   stock: number;

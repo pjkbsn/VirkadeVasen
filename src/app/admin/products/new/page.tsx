@@ -13,14 +13,12 @@ import { useProducts } from "@/hooks/useProducts";
 import { Product } from "@/types";
 import { VariantForm } from "@/components/admin/products/VariantForm";
 import { useProductFormStore } from "@/store/productform-store";
+// import { getServerProducts } from "@/actions/products";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-// import { VariantForm } from "@/components/admin/products/VariantForm";
-//  <VariantForm productId="2" />
-
-export default function NewProductPage() {
+export default async function NewProductPage() {
   const [products, setProducts] = useState<Product[] | []>([]);
   const { getProductsBasic } = useProducts();
   const {
@@ -34,6 +32,10 @@ export default function NewProductPage() {
   useEffect(() => {
     reset();
   }, [reset]);
+
+  // const { success, data: serverProducts, error } = await getServerProducts();
+
+  // console.log("Fetched Serverproducts: ", serverProducts);
 
   const handleValueChange = (value: string) => {
     if (value === "clear-option") {
