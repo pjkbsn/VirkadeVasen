@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const productSchema = z.object({
+export const productGroupsSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
@@ -12,12 +12,12 @@ export const colorSchema = z.object({
   hex_code: z.string().optional(),
 });
 
-export const productVariantSchema = z.object({
+export const productSchema = z.object({
   id: z.string(),
   price: z.number(),
   stock: z.number(),
   image_url: z.array(z.string()).nullable(),
   color_id: z.string(),
-  products: productSchema,
+  product_groups: productGroupsSchema,
   colors: colorSchema,
 });

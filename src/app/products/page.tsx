@@ -1,32 +1,17 @@
-"use client";
-
 // import { createClient } from "@/utils/supabase/server";
 import { ProductCard } from "@/components/products/ProductCard";
 // import { cookies } from "next/headers";
 import { ProductFilter } from "@/components/products/ProductFilter";
-import { useState, useEffect } from "react";
-import { ProductVariant } from "@/types";
-import { useProducts } from "@/hooks/useProducts";
+// import { useState, useEffect } from "react";
+// import { Product } from "@/types";
+// import { useProducts } from "@/hooks/useProducts";
+import { getProducts } from "@/actions/products";
 
-export default function ProductPage() {
-  const [products, setProducts] = useState<ProductVariant[] | null>(null);
-  const { getProductVariants, loading, error } = useProducts();
+export default async function ProductPage() {
+  // const [products, setProducts] = useState<Product[] | null>(null);
+  const { data: products } = await getProducts();
 
   console.log("Products: ", products);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const data = await getProductVariants();
-      console.log("Data: ", data);
-      if (data) {
-        setProducts(data);
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
-  if (error)
-    return <p>Error: {typeof error === "string" ? error : error.message}</p>;
 
   return (
     <>
@@ -53,7 +38,7 @@ export default function ProductPage() {
                 <ProductCard
                   key={product.id}
                   id={product.id}
-                  name={product.products?.name || "Unknown"} // Access as object
+                  name={product.product_groups.name || "Unknown"} // Access as object
                   price={product.price || 0}
                   imageUrl={
                     product.image_url?.length

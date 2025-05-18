@@ -39,3 +39,16 @@ export type UpdateProduct = Partial<{
   stock: number;
   image_url: string[];
 }>;
+
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  parent_id?: string;
+};
+export type Color = {
+  id: string;
+  name: string;
+  hex_code: string;
+};

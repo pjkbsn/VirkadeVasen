@@ -1,5 +1,7 @@
+// src/components/admin/products/ProductForm.tsx (VariantForm)
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -11,9 +13,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -21,130 +23,140 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { CornerDownRight, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { CategoryFormDialog } from "./CategoryFormDialog";
-import { useCategoryStore } from "@/store/category-store";
-import { useProducts } from "@/hooks/useProducts";
-import { Product, CreateProduct } from "@/types";
-import { useProductFormStore } from "@/store/productform-store";
+import { ImagesUpload } from "./ImagesUpload";
+import { ColorFormDialog } from "./ColorFormDialog";
+import { Color } from "@/types";
+import { createProduct, updateProduct } from "@/actions/products";
+import { createColor } from "@/actions/colors";
 
+// Schema definition remains the same
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Namn på produkten krävs" }),
-  description: z.string().optional(),
-  categoryId: z.string().min(1, { message: "Kategori krävs" }),
+  color_id: z.string().min(1, { message: "Färg krävs" }),
+  price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    message: "Pris måste vara ett positivt nummer",
+  }),
+  stock: z
+    .string()
+    .optional()
+    .transform((val) => (val === "" ? "0" : val)),
+  image_url: z.string().array().optional(),
 });
 
 type ProductFormProps = {
-  product?: Product & { categoryId?: string };
-  onSuccess?: (productId: string) => void;
-  onVariantClick?: () => void;
+  variant?: {
+    id: string;
+    color_id: string;
+    price: string;
+    stock: string;
+    image_url?: string[];
+  };
+  productId?: string;
+  initialColors: Color[];
+  onSuccess?: () => void;
+  newProduct?: boolean;
+  onAbort?: () => void;
 };
 
 export const ProductForm = ({
-  product,
+  variant,
+  productId,
+  initialColors,
   onSuccess,
-  onVariantClick,
+  newProduct,
+  onAbort,
 }: ProductFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const { createProduct, updateProduct, updateProductCategory } = useProducts();
-  const { categories, getCategories, getChildCategories, getParentCategories } =
-    useCategoryStore();
-  const { setProductData, setProductId } = useProductFormStore();
+  const [showColorModal, setShowColorModal] = useState(false);
+  const [colors, setColors] = useState<Color[]>(initialColors);
 
-  const parentCategories = getParentCategories();
-  useEffect(() => {
-    getCategories();
-  }, [getCategories]);
-
-  const isEditing = !!product;
+  const router = useRouter();
+  const isEditing = !!variant;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: product?.name || "",
-      description: product?.description || "",
-      categoryId: product?.categoryId || "",
+      color_id: variant?.color_id || "",
+      price: variant?.price || "",
+      stock: variant?.stock || "0",
+      image_url: Array.isArray(variant?.image_url) ? variant.image_url : [],
     },
-    mode: "onSubmit",
   });
 
-  const selectedCategoryId = form.watch("categoryId");
+  const handleImagesUpdated = (urls: string[]) => {
+    form.setValue("image_url", urls);
+  };
+
+  const handleColorCreated = (newColor: Color) => {
+    setColors((prev) => [...prev, newColor]);
+  };
+
+  // const handleAddColor = async (name: string, hexCode: string) => {
+  //   try {
+  //     const result = await createColor({ name, hex_code: hexCode });
+  //     if (result.success && result.id) {
+  //       setColors((prev) => [
+  //         ...prev,
+  //         { id: result.id, name, hex_code: hexCode },
+  //       ]);
+  //       form.setValue("color_id", result.id);
+  //       setShowColorModal(false);
+  //       return true;
+  //     }
+  //     return false;
+  //   } catch (error) {
+  //     console.error("Failed to add color:", error);
+  //     return false;
+  //   }
+  // };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
 
     try {
-      // Step 1: Create/update product
-      let productId = product?.id;
-      if (isEditing && productId) {
-        const productData: Product = {
-          id: productId,
-          name: values.name,
-          description: values.description || "",
-        };
-        const result = await updateProduct(productData);
+      // Verify we have a product ID
+      if (!productId) {
+        toast.error("No product ID available. Please create a product first.");
+        return;
+      }
+
+      // Create variant data
+      const variantData = {
+        product_groups_id: productId,
+        color_id: values.color_id,
+        price: parseFloat(values.price),
+        stock: parseInt(values.stock || "0"),
+        image_url: values.image_url,
+      };
+
+      // Create or update the variant
+      if (isEditing && variant?.id) {
+        const result = await updateProduct(variantData, variant.id);
         if (!result.success) {
-          throw new Error(result.error || "Failed to update product");
+          throw new Error(result.error || "Failed to update variant");
         }
+        toast.success("Variant updated successfully");
       } else {
-        const productData: CreateProduct = {
-          name: values.name,
-          description: values.description,
-        };
-        const result = await createProduct(productData);
-        if (result.error) {
-          throw new Error(result.error || "Failed to create product");
+        const result = await createProduct(variantData);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create variant");
         }
-        productId = result.id;
+        toast.success("Variant created successfully");
       }
 
-      // Step 2: Handle categories
-      if (productId) {
-        setProductId(productId);
-        const categoryResult = await updateProductCategory(
-          productId,
-          values.categoryId
-        );
-        if (!categoryResult.success) {
-          throw new Error(
-            categoryResult.error || "Failed to update category association"
-          );
-        }
-      }
-
-      // Success handling
-      toast.success(isEditing ? "Product updated!" : "Product created!");
-
-      if (productId && onSuccess) {
-        onSuccess(productId);
+      // Handle success
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(`/admin/products`);
       }
     } catch (error: any) {
-      console.error("Form submission error:", error);
-      toast.error(error.message || "Something went wrong. Please try again.");
+      console.error("Error submitting variant:", error);
+      toast.error(error.message || "Failed to save variant");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleVariantClick = async () => {
-    const isValid = await form.trigger();
-
-    if (isValid) {
-      const formValues = form.getValues();
-      setProductData({
-        name: formValues.name,
-        description: formValues.description,
-        categoryId: formValues.categoryId,
-      });
-
-      if (onVariantClick) {
-        onVariantClick();
-      }
-    } else {
-      toast.error("Vänligen åtgärda felen innan du fortsätter");
     }
   };
 
@@ -154,152 +166,137 @@ export const ProductForm = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="name"
+            name="color_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Namn på produkt</FormLabel>
-                <FormControl>
-                  <Input placeholder="Namn på din produkt..." {...field} />
-                </FormControl>
-                <div className="h-5">
-                  <FormMessage />
-                </div>
+                <FormLabel>
+                  Färg
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowColorModal(true)}
+                    className="text-blue-600 hover:bg-transparent hover:text-blue-600 hover:cursor-pointer"
+                  >
+                    + Ny färg
+                  </Button>
+                </FormLabel>
+                <Select
+                  value={field.value || ""}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Välj färg" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {colors.map((color) => (
+                      <SelectItem key={color.id} value={color.id}>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: color.hex_code }}
+                          />
+                          {color.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="description"
+            name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Beskrivning</FormLabel>
+                <FormLabel>Pris (kr)</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Beskriv din produkt..."
-                    rows={4}
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="399"
                     {...field}
                   />
                 </FormControl>
-                <div className="h-5">
-                  <FormMessage />
-                </div>
+                <FormMessage />
               </FormItem>
             )}
           />
 
           <FormField
             control={form.control}
-            name="categoryId"
-            render={({ field }) => {
-              // Check if selected category is a child category
-              const isChildCategory =
-                selectedCategoryId &&
-                categories.some(
-                  (cat) => cat.id === selectedCategoryId && cat.parent_id
-                );
-
-              return (
-                <FormItem>
-                  <FormLabel>
-                    Kategori
-                    {!isChildCategory && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setShowCategoryModal(true);
-                        }}
-                        className="text-blue-600 hover:bg-transparent hover:text-blue-600 hover:cursor-pointer"
-                      >
-                        {selectedCategoryId
-                          ? "+ Ny underkategori"
-                          : "+ Ny kategori"}
-                      </Button>
-                    )}
-                  </FormLabel>
-                  <Select
-                    key={categories.length}
-                    value={field.value || ""}
-                    onValueChange={(value) => {
-                      if (value === "clear-option") {
-                        field.onChange("");
-                      } else {
-                        field.onChange(value);
-                      }
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Välj kategori" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {field.value && (
-                        <SelectItem
-                          value="clear-option"
-                          className="text-destructive"
-                        >
-                          -- Ta bort val --
-                        </SelectItem>
-                      )}
-                      {parentCategories.map((parent) => (
-                        <div key={parent.id}>
-                          {/* Parent category */}
-                          <SelectItem value={parent.id} className="font-medium">
-                            {parent.name}
-                          </SelectItem>
-
-                          {/* Child categories - indented */}
-                          {getChildCategories(parent.id).map((child) => (
-                            <SelectItem
-                              key={child.id}
-                              value={child.id}
-                              className="pl-6 text-sm border-gray-200"
-                            >
-                              <CornerDownRight />
-                              {child.name}
-                            </SelectItem>
-                          ))}
-                        </div>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="h-5">
-                    <FormMessage />
-                  </div>
-                </FormItem>
-              );
-            }}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lagersaldo</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="10"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
-          <div className="pt-4 flex justify-evenly">
-            <Button type="submit" className="w-1/4" disabled={isSubmitting}>
+          <FormField
+            control={form.control}
+            name="image_url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bilder</FormLabel>
+                <FormControl>
+                  <ImagesUpload
+                    productId={productId}
+                    variantId={variant?.id}
+                    currentImageUrls={field.value || []}
+                    onImagesUpdated={handleImagesUpdated}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="space-y-4">
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {isEditing ? "Uppdaterar..." : "Skapar..."}
                 </>
               ) : isEditing ? (
-                "Uppdatera produkt"
+                "Uppdatera variant"
               ) : (
-                "Skapa produkt"
+                "Skapa variant"
               )}
             </Button>
-            <Button
-              type="button"
-              className="w-1/4"
-              onClick={handleVariantClick}
-            >
-              Lägg till variant
-            </Button>
+            {newProduct && (
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={() => {
+                  if (onAbort) onAbort();
+                }}
+              >
+                Avbryt
+              </Button>
+            )}
           </div>
         </form>
       </Form>
-      <CategoryFormDialog
-        open={showCategoryModal}
-        onOpenChange={setShowCategoryModal}
-        parentId={selectedCategoryId}
+      <ColorFormDialog
+        open={showColorModal}
+        onOpenChange={setShowColorModal}
+        onColorCreated={handleColorCreated}
       />
     </Card>
   );

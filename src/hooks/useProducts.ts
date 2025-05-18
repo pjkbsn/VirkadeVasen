@@ -4,13 +4,13 @@ import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { ParamValue } from "next/dist/server/request/params";
 import {
-  CreateProductVariant,
-  ProductVariant,
-  UpdateProductVariant,
-  Product,
   CreateProduct,
+  Product,
+  UpdateProduct,
+  CreateProductGroups,
+  ProductGroups,
 } from "@/types";
-import { productVariantSchema, productSchema } from "@/schemas";
+import { productSchema, productGroupsSchema } from "@/schemas";
 import { z } from "zod";
 
 export function useProducts() {
@@ -19,7 +19,7 @@ export function useProducts() {
   const supabase = createClient();
 
   // Fetch all products+variants
-  const getProductVariants = async (): Promise<ProductVariant[]> => {
+  const getProducts = async (): Promise<Product[]> => {
     setLoading(true);
     try {
       const { data, error } = await supabase.from("product_variants").select(`
@@ -35,7 +35,7 @@ export function useProducts() {
       console.log("getProductsData: ", data);
 
       if (error) throw new Error(error.message);
-      const parsed = z.array(productVariantSchema).parse(data);
+      const parsed = z.array(productSchema).parse(data);
       console.log("parsed getProductsData: ", parsed);
       return parsed;
     } catch (err: unknown) {
@@ -50,9 +50,7 @@ export function useProducts() {
     }
   };
   // Fetch a single product+variant
-  const getProductVariant = async (
-    id: ParamValue
-  ): Promise<ProductVariant | null> => {
+  const getProduct = async (id: ParamValue): Promise<Product | null> => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -72,7 +70,7 @@ export function useProducts() {
         .single();
       if (error) throw new Error(error.message);
       if (!data) return null;
-      const parsed = productVariantSchema.parse(data);
+      const parsed = productSchema.parse(data);
       return parsed;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -87,9 +85,9 @@ export function useProducts() {
   };
 
   //Fetch all variants to a product
-  const getVariantsByProductId = async (
+  const getProductByProductGroupId = async (
     productId: string
-  ): Promise<ProductVariant[]> => {
+  ): Promise<Product[]> => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -109,7 +107,7 @@ export function useProducts() {
 
       if (error) throw new Error(error.message);
       if (!data) return [];
-      const parsed = z.array(productVariantSchema).parse(data);
+      const parsed = z.array(productSchema).parse(data);
       return parsed;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -123,8 +121,8 @@ export function useProducts() {
     }
   };
 
-  const createProductVariant = async (
-    variantData: CreateProductVariant
+  const createProduct = async (
+    variantData: CreateProduct
   ): Promise<{ success: boolean; id?: string; error?: string }> => {
     setLoading(true);
     try {
@@ -157,8 +155,8 @@ export function useProducts() {
     }
   };
 
-  const updateProductVariant = async (
-    variantData: UpdateProductVariant,
+  const updateProduct = async (
+    variantData: UpdateProduct,
     id: string
   ): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
@@ -189,7 +187,7 @@ export function useProducts() {
     }
   };
 
-  const deleteProductVariant = async (
+  const deleteProduct = async (
     id: string
   ): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
@@ -220,7 +218,7 @@ export function useProducts() {
     }
   };
 
-  const getProductsBasic = async (): Promise<Product[]> => {
+  const getProductGroups = async (): Promise<ProductGroups[]> => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -229,7 +227,7 @@ export function useProducts() {
 
       if (error) throw new Error(error.message);
 
-      const parsed = z.array(productSchema).parse(data);
+      const parsed = z.array(productGroupsSchema).parse(data);
       return parsed;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -243,7 +241,7 @@ export function useProducts() {
     }
   };
 
-  const getProductBasic = async (id: string): Promise<Product | null> => {
+  const getProductGroup = async (id: string): Promise<ProductGroups | null> => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -252,7 +250,7 @@ export function useProducts() {
         .eq("id", id);
       if (error) throw new Error(error.message);
 
-      const parsed = productSchema.parse(data);
+      const parsed = productGroupsSchema.parse(data);
       return parsed;
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -266,8 +264,8 @@ export function useProducts() {
     }
   };
 
-  const createProduct = async (
-    productData: CreateProduct
+  const createProductGroup = async (
+    productData: CreateProductGroups
   ): Promise<{ success: boolean; id?: string; error?: string }> => {
     setLoading(true);
     try {
@@ -300,8 +298,8 @@ export function useProducts() {
     }
   };
 
-  const updateProduct = async (
-    productData: Product
+  const updateProductGroup = async (
+    productData: ProductGroups
   ): Promise<{ success: boolean; error?: string }> => {
     const { id, ...updateData } = productData;
     setLoading(true);
@@ -331,7 +329,7 @@ export function useProducts() {
     }
   };
 
-  const deleteProduct = async (
+  const deleteProductGroup = async (
     id: string
   ): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
@@ -407,17 +405,17 @@ export function useProducts() {
   return {
     loading,
     error,
-    getProductVariants,
-    getProductVariant,
-    getVariantsByProductId,
-    createProductVariant,
-    updateProductVariant,
-    deleteProductVariant,
-    getProductsBasic,
-    getProductBasic,
+    getProducts,
+    getProduct,
+    getProductByProductGroupId,
     createProduct,
     updateProduct,
     deleteProduct,
+    getProductGroups,
+    getProductGroup,
+    createProductGroup,
+    updateProductGroup,
+    deleteProductGroup,
     updateProductCategory,
   };
 }

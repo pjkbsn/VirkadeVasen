@@ -10,13 +10,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useCategoryStore } from "@/store/category-store";
+import { createCategory } from "@/actions/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { Category } from "@/types";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Kategorinamn krävs" }),
@@ -26,12 +27,11 @@ const formSchema = z.object({
 
 type CategoryFormProps = {
   parentId?: string;
-  onSuccess: () => void;
+  onSuccess: (category: Category) => void; // Return the created category
 };
 
 export const CategoryForm = ({ parentId, onSuccess }: CategoryFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addCategory } = useCategoryStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,23 +47,33 @@ export const CategoryForm = ({ parentId, onSuccess }: CategoryFormProps) => {
     try {
       const selectedParentId = parentId ? parentId : values.parentId;
 
-      const result = await addCategory(
-        values.name,
-        values.description,
-        selectedParentId
-      );
-      if (result) {
+      // The form handles its own API calls
+      const result = await createCategory({
+        name: values.name,
+        description: values.description,
+        parent_id: selectedParentId,
+      });
+
+      if (result.success && result.id) {
+        // Create a complete category object
+        const newCategory: Category = {
+          id: result.id,
+          name: values.name,
+          description: values.description || "",
+          parent_id: selectedParentId,
+          slug: values.name.toLowerCase().replace(/\s+/g, "-"),
+        };
+
         toast.success(
-          `${parentId ? "Underkategori" : "Kategori"}'${
+          `${parentId ? "Underkategori" : "Kategori"} '${
             values.name
           }' har skapats`
         );
-        form.reset({
-          name: "",
-          description: "",
-          parentId: parentId || undefined,
-        });
-        onSuccess();
+
+        form.reset();
+        onSuccess(newCategory); // Pass the new category to parent
+      } else {
+        toast.error(result.error || "Kunde inte skapa kategori");
       }
     } catch (error) {
       console.error("Failed to add category: ", error);
@@ -73,9 +83,11 @@ export const CategoryForm = ({ parentId, onSuccess }: CategoryFormProps) => {
     }
   };
 
+  // Form rendering stays the same
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
+        {/* Form fields remain unchanged */}
         <FormField
           control={form.control}
           name="name"

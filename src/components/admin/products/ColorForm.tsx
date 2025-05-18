@@ -1,6 +1,10 @@
+// src/components/admin/products/ColorForm.tsx
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -9,14 +13,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useColorStore } from "@/store/color-store";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { z } from "zod";
+import { createColor } from "@/actions/colors";
 import { HexColorPicker } from "react-colorful";
+import { Color } from "@/types";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Färgnamn krävs" }),
@@ -24,36 +27,45 @@ const formSchema = z.object({
 });
 
 type ColorFormProps = {
-  onSuccess: () => void;
+  onSuccess: (color: Color) => void;
 };
 
 export const ColorForm = ({ onSuccess }: ColorFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addColor } = useColorStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      hex_code: "#ffffff",
+      hex_code: "#000000",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
+
     try {
-      const result = await addColor(values.name, values.hex_code);
-      if (result) {
-        toast.success(`Färg ${values.name} har lagts till`);
-        form.reset({
-          name: "",
-          hex_code: "#ffffff",
-        });
-        onSuccess();
+      // Use the callback if provided
+      const result = await createColor({
+        name: values.name,
+        hex_code: values.hex_code,
+      });
+      if (result.success && result.id) {
+        const newColor: Color = {
+          id: result.id,
+          name: values.name,
+          hex_code: values.hex_code,
+        };
+
+        toast.success(`Färg '${values.name}' har skapats`);
+        form.reset();
+        onSuccess(newColor);
+      } else {
+        toast.error("Kunde inte skapa färg");
       }
     } catch (error) {
       console.error("Failed to add color: ", error);
-      toast.error("Kunde inte lägga till färg");
+      toast.error("Ett fel uppstod när färgen skulle skapas");
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +73,7 @@ export const ColorForm = ({ onSuccess }: ColorFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="name"

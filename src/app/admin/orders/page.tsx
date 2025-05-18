@@ -1,9 +1,9 @@
-import { getProductGroups } from "@/actions/products";
+// import { getProductGroups } from "@/actions/products";
 
 export default async function OrderPage() {
-  const { success, data: serverProducts, error } = await getProductGroups();
+  // const { success, data: serverProducts, error } = await getProductGroups();
 
-  console.log("Fetched Serverproducts: ", serverProducts);
+  // console.log("Fetched Serverproducts: ", serverProducts);
   return (
     <div className="mx-auto p-6">
       <div className="flex justify-center">
