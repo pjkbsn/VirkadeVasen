@@ -11,9 +11,10 @@ export default function ProductsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Main content area where products will be displayed */}
-      <main className="md:col-span-3">{children}</main>
-    </div>
+    // <div className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8">
+      <div>{children}</div>
+    </main>
+    // </div>
   );
 }

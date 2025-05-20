@@ -10,7 +10,6 @@ import {
 } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { ParamValue } from "next/dist/server/request/params";
 import { cookies } from "next/headers";
 import { z } from "zod";
 
@@ -22,7 +21,7 @@ export type ActionResult =
 // Type for functions that return data
 export type ActionResultWithData<T> =
   | { success: true; data: T }
-  | { success: false; error: string; data?: T };
+  | { success: false; error: string; data: T };
 
 // Type for functions that return an ID
 export type ActionResultWithId =
@@ -100,6 +99,7 @@ export async function updateProductGroup(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+      data: [],
     };
   }
 }
@@ -124,22 +124,79 @@ export async function deleteProductGroup(id: string): Promise<ActionResult> {
     };
   }
 }
-
-export async function getProducts(): Promise<ActionResultWithData<Product[]>> {
+export async function getProducts(filters?: {
+  categories?: string[];
+  colors?: string[];
+  maxPrice?: number;
+}): Promise<ActionResultWithData<Product[]>> {
   const supabase = createClient(cookies());
   try {
-    const { data, error } = await supabase.from("products").select(
-      `
-        id,
-         price,
-          stock, 
-          image_url, 
-          color_id, 
-          product_groups:product_groups_id(id, name, description), 
-          colors:color_id(id, name)
-        `
-    );
+    // Base query structure - used whether filtering by categories or not
+    let baseQuery = `
+      id,
+      price,
+      stock, 
+      image_url, 
+      color_id, 
+      product_groups:product_groups_id(id, name, description), 
+      colors:color_id(id, name)
+    `;
+
+    // Start building the query
+    let query = supabase.from("products").select(baseQuery);
+
+    // If filtering by categories is needed
+    if (filters?.categories?.length) {
+      // Get all product_groups that belong to the selected categories
+      const { data: productCategories, error: pcError } = await supabase
+        .from("product_categories")
+        .select("product_groups_id")
+        .in("category_id", filters.categories);
+
+      if (pcError) throw new Error(pcError.message);
+
+      // Log for debugging
+      console.log("Categories UUID filter:", filters.categories);
+      console.log("Product-Categories UUID found:", productCategories);
+
+      if (productCategories && productCategories.length > 0) {
+        // Extract just the product_groups_ids
+        const productGroupIds = productCategories.map(
+          (pc) => pc.product_groups_id
+        );
+        console.log("ProductGroupIds : ", productGroupIds);
+        // Filter products to only include those with matching product_groups_id
+        query = query.in("product_groups_id", productGroupIds);
+      } else {
+        // No product groups match the selected categories, return empty result
+        console.log("No product groups found for the selected categories");
+        return {
+          success: true,
+          data: [],
+        };
+      }
+    }
+
+    // Apply additional filters if provided
+
+    // Filter by colors
+    if (filters?.colors?.length) {
+      query = query.in("color_id", filters.colors);
+    }
+
+    // Filter by max price
+    if (filters?.maxPrice) {
+      query = query.lte("price", filters.maxPrice);
+    }
+
+    // Execute the final query
+    const { data, error } = await query;
+
     if (error) throw new Error(error.message);
+
+    console.log(`Query executed. Found ${data?.length || 0} products.`);
+
+    // Parse the result with your schema
     const parsed = z.array(productSchema).parse(data);
 
     return {
@@ -147,9 +204,11 @@ export async function getProducts(): Promise<ActionResultWithData<Product[]>> {
       data: parsed,
     };
   } catch (error) {
+    console.error("Error in getProducts:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+      data: [],
     };
   }
 }
@@ -184,6 +243,7 @@ export async function getAllProductsByGroupId(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+      data: [],
     };
   }
 }
@@ -219,6 +279,7 @@ export async function getSingleProduct(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+      data: {} as Product,
     };
   }
 }
@@ -297,7 +358,7 @@ export async function updateProductCategory(
     const { data: existingRelation, error: checkError } = await supabase
       .from("product_categories")
       .select("*")
-      .eq("product_id", productId)
+      .eq("product_groups_id", productId)
       .single();
 
     if (checkError && checkError.code !== "PGRST116") {
@@ -313,7 +374,7 @@ export async function updateProductCategory(
       const { error: updateError } = await supabase
         .from("product_categories")
         .update({ category_id: categoryId })
-        .eq("product_id", productId);
+        .eq("product_groups_id", productId);
 
       error = updateError;
     } else {
@@ -321,7 +382,7 @@ export async function updateProductCategory(
       const { error: insertError } = await supabase
         .from("product_categories")
         .insert({
-          product_id: productId,
+          product_groups_id: productId,
           category_id: categoryId,
         });
 

@@ -21,7 +21,7 @@ export default function Header() {
         "z-50 w-full transition-all duration-300",
         isHomePage
           ? "absolute bg-transparent text-white p-4 md:p-5"
-          : "bg-slate-800 text-white shadow-md p-2 md:p-3 h-20"
+          : "sticky top-0 bg-slate-800 text-white shadow-md p-2 md:p-3 h-20"
       )}
     >
       <nav className="flex justify-between gap-4">
@@ -34,9 +34,7 @@ export default function Header() {
               width={150}
               height={150}
               className={cn(
-                isHomePage
-                  ? "w-auto h-10 md:h-15 lg:h-24"
-                  : "w-auto h-5 md:h-8 lg:h-14"
+                isHomePage ? "w-auto h-10 md:h-15 lg:h-24" : "w-14 h-14"
               )}
             />
           </Link>

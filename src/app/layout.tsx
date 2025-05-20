@@ -36,7 +36,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
+      className={`show-scrollbar ${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
       // style={{ "--header-height": "80px" } as React.CSSProperties}
     >
       <body className="flex flex-col min-h-screen h-full">
@@ -47,7 +47,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ConditionalHeader />
-          <main className="overflow-y-auto hide-scrollbar">
+          <main>
             {children}
             <SuccessMessage />
           </main>

@@ -47,6 +47,7 @@ export function ProductGroupDialog({
   };
 
   const handleVariantSuccess = () => {
+    setCreatedProductId("");
     toast.success("Variant skapad!");
   };
 

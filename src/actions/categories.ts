@@ -11,7 +11,6 @@ export async function getCategories() {
       .select("id, name, slug, description")
       .order("name");
     if (error) throw new Error(error.message);
-    console.log("Fetched categories: ", data);
     return {
       success: true,
       data,
@@ -55,6 +54,30 @@ export async function createCategory(data: {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export async function getCategoryRelation() {
+  const supabase = createClient(cookies());
+  try {
+    const { data, error } = await supabase.from("product_categories").select(
+      `
+      product_groups_id(id, name),
+      category_id(id, name)  
+      `
+    );
+    if (error) throw new Error(error.message);
+    // console.log("Data from categoryRelation: ", data);
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      data: [],
     };
   }
 }

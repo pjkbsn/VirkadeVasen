@@ -71,7 +71,7 @@ export const ProductForm = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
   const [colors, setColors] = useState<Color[]>(initialColors);
-
+  const [resetKey, setResetKey] = useState(0);
   const router = useRouter();
   const isEditing = !!variant;
 
@@ -92,25 +92,6 @@ export const ProductForm = ({
   const handleColorCreated = (newColor: Color) => {
     setColors((prev) => [...prev, newColor]);
   };
-
-  // const handleAddColor = async (name: string, hexCode: string) => {
-  //   try {
-  //     const result = await createColor({ name, hex_code: hexCode });
-  //     if (result.success && result.id) {
-  //       setColors((prev) => [
-  //         ...prev,
-  //         { id: result.id, name, hex_code: hexCode },
-  //       ]);
-  //       form.setValue("color_id", result.id);
-  //       setShowColorModal(false);
-  //       return true;
-  //     }
-  //     return false;
-  //   } catch (error) {
-  //     console.error("Failed to add color:", error);
-  //     return false;
-  //   }
-  // };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
@@ -149,6 +130,8 @@ export const ProductForm = ({
       // Handle success
       if (onSuccess) {
         onSuccess();
+        form.reset();
+        setResetKey((prev) => prev + 1);
       } else {
         router.push(`/admin/products`);
       }
@@ -255,6 +238,7 @@ export const ProductForm = ({
                 <FormLabel>Bilder</FormLabel>
                 <FormControl>
                   <ImagesUpload
+                    key={resetKey}
                     productId={productId}
                     variantId={variant?.id}
                     currentImageUrls={field.value || []}

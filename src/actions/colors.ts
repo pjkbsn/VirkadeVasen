@@ -11,7 +11,7 @@ export async function getColors() {
       .select("id, name, hex_code")
       .order("name");
     if (error) throw new Error(error.message);
-    console.log("Colors from getColors: ", data);
+
     return {
       success: true,
       data,
