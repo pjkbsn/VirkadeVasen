@@ -114,6 +114,23 @@
 }
 
 @layer base {
+  html {
+    scrollbar-width: thin;
+  }
+  /* Show on hover only */
+  ::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s;
+  }
+
+  :hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
   * {
     @apply border-border outline-ring/50;
   }
@@ -133,5 +150,8 @@
   .hide-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+  }
+  .show-scrollbar {
+    overflow-y: scroll;
   }
 }

@@ -1,35 +1,40 @@
+// src/components/admin/products/ColorFormDialog.tsx
+"use client";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ColorForm } from "./ColorForm";
+import { Color } from "@/types";
 
 type ColorFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onColorCreated: (color: Color) => void;
 };
 
 export const ColorFormDialog = ({
   open,
   onOpenChange,
+  onColorCreated,
 }: ColorFormDialogProps) => {
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild></DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Lägg till ny färg</DialogTitle>
-            <DialogDescription>Välj färg</DialogDescription>
-          </DialogHeader>
-
-          <ColorForm onSuccess={() => onOpenChange(false)} />
-        </DialogContent>
-      </Dialog>
-    </>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Lägg till ny färg</DialogTitle>
+        </DialogHeader>
+        <ColorForm
+          onSuccess={(newColor) => {
+            onColorCreated(newColor);
+            onOpenChange(false);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 };

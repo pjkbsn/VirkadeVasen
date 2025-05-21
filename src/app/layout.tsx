@@ -4,6 +4,8 @@ import "./globals.css";
 import ConditionalHeader from "@/components/layout/conditional-header";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { SuccessMessage } from "@/components/common/SuccessMessage";
+import { Toaster } from "@/components/ui/sonner";
+import ScrollbarWrapper from "@/components/layout/scrollbar-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,9 +38,9 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
-      style={{ "--header-height": "80px" } as React.CSSProperties}
+      // style={{ "--header-height": "80px" } as React.CSSProperties}
     >
-      <body className="flex flex-col min-h-screen h-full">
+      <body className="flex flex-col min-h-screen">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -46,10 +48,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ConditionalHeader />
-          <main className="h-[calc(100vh-var(--header-height))] overflow-y-auto hide-scrollbar">
+          <ScrollbarWrapper>
             {children}
             <SuccessMessage />
-          </main>
+          </ScrollbarWrapper>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

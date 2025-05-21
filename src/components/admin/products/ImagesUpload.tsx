@@ -15,7 +15,7 @@ export const ImagesUpload = ({
   currentImageUrls = [],
   onImagesUpdated,
 }: {
-  productId: string;
+  productId: string | undefined;
   variantId?: string;
   currentImageUrls?: string[];
   onImagesUpdated: (urls: string[]) => void;
