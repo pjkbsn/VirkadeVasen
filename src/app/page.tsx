@@ -4,7 +4,7 @@ import { OfferingsSection } from "@/components/sections/home/OfferingsSection";
 
 export default function HomePage() {
   return (
-    <div className="h-screen hide-scrollbar snap-y snap-proximity scroll-smooth">
+    <div className="h-screen snap-y snap-proximity scroll-smooth overflow-y-auto hide-scrollbar">
       <div className="snap-start w-full">
         <HeroSection />
       </div>
