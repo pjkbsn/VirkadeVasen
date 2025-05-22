@@ -5,20 +5,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "../ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Product } from "@/types";
+import { ProductCard } from "../products/ProductCard";
 
-export const ProductCarousel = () => {
-  const carouselItems = [
-    { id: 1, content: "Item 1" },
-    { id: 2, content: "Item 2" },
-    { id: 3, content: "Item 3" },
-    { id: 4, content: "Item 4" },
-    { id: 5, content: "Item 5" },
-    { id: 6, content: "Item 6" },
-    { id: 7, content: "Item 7" },
-  ];
+type ProductCarouselProps = {
+  carouselData: Product[];
+};
 
+export const ProductCarousel = ({ carouselData }: ProductCarouselProps) => {
   return (
     <Carousel
       opts={{
@@ -26,40 +21,44 @@ export const ProductCarousel = () => {
         loop: true,
         slidesToScroll: 1,
       }}
-      className="grid grid-cols-[auto_1fr] items-center gap-4 w-full h-auto md:h-[25rem] lg:h-[30rem]"
     >
-      {/* Column 1: Navigation arrows */}
-      <div className="col-start-1 flex flex-col justify-center gap-4 w-20 bg-black ">
-        <CarouselPrevious className="relative inset-0 translate-x-0 translate-y-0 h-10 w-10 bg-white hover:bg-gray-100 text-black">
-          <ChevronLeft className="h-5 w-5" />
-        </CarouselPrevious>
-        <CarouselNext className="relative inset-0 translate-x-0 translate-y-0 h-10 w-10 bg-white hover:bg-gray-100 text-black">
-          <ChevronRight className="h-5 w-5" />
-        </CarouselNext>
-      </div>
+      <div className="flex flex-col md:flex-row md:items-end">
+        {/* Column 1: Navigation arrows */}
+        <div className="w-2/12 flex items-center ">
+          <div className="inline-flex h-10 translate-x-15 -translate-y-5 md:translate-y-0 md:translate-x-15">
+            <CarouselPrevious className="h-10 w-10 bg-background text-foreground rounded-lg cursor-pointer">
+              <ChevronLeft className="h-5 w-5" />
+            </CarouselPrevious>
+            <CarouselNext className="h-10 w-10 bg-background text-foreground rounded-lg cursor-pointer">
+              <ChevronRight className="h-5 w-5" />
+            </CarouselNext>
+          </div>
+        </div>
 
-      {/* Column 2: Carousel content */}
-      <CarouselContent className="col-start-2 h-full">
-        {carouselItems.map((item) => (
-          <CarouselItem
-            key={item.id}
-            className="pl-4 md:basis-1/3 lg:basis-1/4 h-full"
-          >
-            <div className="p-1 h-full">
-              <Card className="h-full md:h-[25rem] lg:h-[30rem]">
-                <CardContent className="flex p-0 h-full">
-                  <div className="w-full h-full">
-                    {/* Use a placeholder or your actual images */}
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-black">
-                      {item.content}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
+        {/* Column 2: Carousel content */}
+        <CarouselContent className="w-screen h-full">
+          {carouselData.map((item) => (
+            <CarouselItem
+              key={item.id}
+              className="pl-4 basis-1/1 sm:basis-1/2 lg:basis-1/4"
+            >
+              <ProductCard
+                key={item.id}
+                id={item.id}
+                name={item.product_groups.name}
+                price={item.price}
+                imageUrl={
+                  item.image_url?.length
+                    ? item.image_url[0]
+                    : "No image available"
+                }
+                colorName={item.colors.name}
+                height="96"
+              />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </div>
     </Carousel>
   );
 };
