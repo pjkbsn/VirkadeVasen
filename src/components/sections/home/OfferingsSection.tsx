@@ -1,22 +1,24 @@
+import { getProducts } from "@/actions/products";
 import { ProductCarousel } from "@/components/common/ProductCarousel";
 
-export const OfferingsSection = () => {
+export const OfferingsSection = async () => {
+  const { data } = await getProducts({ cardView: true, latestAdded: true });
+
   return (
-    <section className="bg-background h-screen w-full">
-      <div className="grid grid-rows-[1fr_1fr] h-full p-4 md:p-6 lg:p-8 gap-4">
-        <div className="row-start-1 grid grid-cols-[1fr_1fr]">
-          <div className=" col-start-1 flex items-end justify-end">
-            <h1 className="text-3xl text-foreground text-left w-70 md:w-120 md:text-5xl lg:text-8xl lg:w-[33rem]">
-              Välkommen till hemmet för magiska väsen
-            </h1>
-          </div>
-          <p className=" text-foreground col-start-2 flex items-end w-40">
-            Gör ditt hem till en plats där varje rum förtrollas av mystik
-          </p>
+    <section className="flex flex-col justify-evenly items-center min-h-screen min-w-screen p-10 bg-background">
+      <div className="flex justify-end w-8/12">
+        <p className="text-foreground flex w-4/12 md:text-7xl font-italianno  tracking-wider">
+          Gör ditt hem till en plats där varje rum förtrollas av mystik.
+        </p>
+      </div>
+
+      <div className="flex flex-col items-center w-full">
+        <div className="max-sm:flex grid grid-cols-5 w-full">
+          <h2 className="text-6xl sm:col-start-1 sm:text-7xl md:text-8xl font-italianno pb-10 mr-12 md:col-start-2 col-span-5">
+            Senast tillagda
+          </h2>
         </div>
-        <div className="row-start-2 w-full flex items-center justify-end">
-          <ProductCarousel />
-        </div>
+        <ProductCarousel carouselData={data} />
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 export type ProductGroups = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
 };
 
 export type CreateProductGroups = {
@@ -18,9 +18,8 @@ export type Colors = {
 export type Product = {
   id: string;
   price: number;
-  stock: number;
+  stock?: number;
   image_url: string[] | null;
-  color_id: string;
   product_groups: ProductGroups;
   colors: Colors;
 };

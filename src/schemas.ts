@@ -5,6 +5,10 @@ export const productGroupsSchema = z.object({
   name: z.string(),
   description: z.string(),
 });
+export const productGroupsCardSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
 
 export const colorSchema = z.object({
   id: z.string().optional(),
@@ -17,7 +21,14 @@ export const productSchema = z.object({
   price: z.number(),
   stock: z.number(),
   image_url: z.array(z.string()).nullable(),
-  color_id: z.string(),
   product_groups: productGroupsSchema,
   colors: colorSchema,
+});
+
+export const productCardSchema = z.object({
+  id: z.string(),
+  price: z.number(),
+  image_url: z.array(z.string()).nullable(),
+  colors: colorSchema,
+  product_groups: productGroupsCardSchema,
 });

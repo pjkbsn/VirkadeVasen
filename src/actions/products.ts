@@ -1,6 +1,6 @@
 "use server";
 
-import { productSchema } from "@/schemas";
+import { productCardSchema, productSchema } from "@/schemas";
 import {
   CreateProductGroups,
   CreateProduct,
@@ -128,22 +128,42 @@ export async function getProducts(filters?: {
   categories?: string[];
   colors?: string[];
   maxPrice?: number;
+  cardView?: boolean;
+  latestAdded?: boolean;
+  limit?: number;
 }): Promise<ActionResultWithData<Product[]>> {
   const supabase = createClient(cookies());
   try {
     // Base query structure - used whether filtering by categories or not
-    let baseQuery = `
+
+    let baseQuery = filters?.cardView
+      ? `id, price, image_url, product_groups:product_groups_id(id, name), colors:color_id(id, name, hex_code)`
+      : `
       id,
       price,
       stock, 
       image_url, 
-      color_id, 
       product_groups:product_groups_id(id, name, description), 
       colors:color_id(id, name)
     `;
 
     // Start building the query
     let query = supabase.from("products").select(baseQuery);
+
+    if (filters?.latestAdded) {
+      query = query.order("created_at", { ascending: false });
+      query = query.limit(filters.limit || 8);
+      const { data, error } = await query;
+      if (error) throw new Error(error.message);
+      console.log(
+        `Query executed. Found ${data?.length || 0} featured products.`
+      );
+      const parsed = z.array(productCardSchema).parse(data);
+      return {
+        success: true,
+        data: parsed,
+      };
+    }
 
     // If filtering by categories is needed
     if (filters?.categories?.length) {
@@ -226,7 +246,6 @@ export async function getAllProductsByGroupId(
         price,
         stock,
         image_url,
-        color_id,
         product_groups:product_groups_id(id, name, description),
         colors:color_id(name, hex_code)
         `
@@ -261,7 +280,6 @@ export async function getSingleProduct(
          price,
           stock, 
           image_url, 
-          color_id, 
           product_groups:product_groups_id(id, name, description), 
           colors:color_id(name, hex_code)
         `

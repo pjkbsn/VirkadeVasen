@@ -18,6 +18,7 @@ interface ProductCardProps {
   price: number;
   imageUrl: string;
   colorName?: string;
+  height?: string;
 }
 
 export function ProductCard({
@@ -26,17 +27,19 @@ export function ProductCard({
   price,
   imageUrl,
   colorName,
+  height,
 }: ProductCardProps) {
   return (
+    // <div className="w-60">
     <Link href={`/products/${id}`}>
-      <Card className="py-0 border-t-0">
-        <div className="relative aspect-square w-full">
+      <Card className="py-0 border-t-0 w-full">
+        <div className={`relative aspect-square`}>
           <Image
             src={imageUrl}
             alt={`${name} - ${colorName || ""}`}
-            fill
+            fill={true}
             priority={false}
-            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            sizes="(max-width: 640px) 75vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover rounded-t-xl"
           />
         </div>
@@ -69,5 +72,6 @@ export function ProductCard({
         </div>
       </div> */}
     </Link>
+    // </div>
   );
 }

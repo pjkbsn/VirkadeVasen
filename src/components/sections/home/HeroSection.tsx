@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export const HeroSection = () => {
   return (
-    <section className="h-[95vh] w-full relative overflow-hidden">
+    <section className="h-full w-full overflow-hidden">
       <Header />
       <div className="absolute inset-0">
         <Image
@@ -22,7 +22,7 @@ export const HeroSection = () => {
         {/* Title - aligned center but won't overlap with logo */}
         <div className="col-start-2 row-start-1 text-center self-center">
           <h1 className="font-italianno text-white text-3xl md:text-5xl lg:text-9xl">
-            Virkadeväsen
+            Virkade väsen
           </h1>
         </div>
         {/* Middle content - Takes full height of row */}
