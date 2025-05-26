@@ -28,10 +28,14 @@ export type ActionResultWithId =
   | { success: true; id: string }
   | { success: false; error: string };
 
+async function getServerSupabase() {
+  return await createClient(cookies());
+}
+
 export async function getProductGroups(): Promise<
   ActionResultWithData<ProductGroups[]>
 > {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     const { data, error } = await supabase
@@ -55,7 +59,7 @@ export async function getProductGroups(): Promise<
 export async function createProductGroup(
   data: CreateProductGroups
 ): Promise<ActionResultWithId> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     const { data: result, error } = await supabase
@@ -81,7 +85,7 @@ export async function updateProductGroup(
   data: ProductGroups
 ): Promise<ActionResultWithData<ProductGroups[]>> {
   const { id, ...updateData } = data;
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     const { data, error } = await supabase
       .from("product_groups")
@@ -105,7 +109,7 @@ export async function updateProductGroup(
 }
 
 export async function deleteProductGroup(id: string): Promise<ActionResult> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     const { error } = await supabase
@@ -132,7 +136,7 @@ export async function getProducts(filters?: {
   latestAdded?: boolean;
   limit?: number;
 }): Promise<ActionResultWithData<Product[]>> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     // Base query structure - used whether filtering by categories or not
 
@@ -236,7 +240,7 @@ export async function getProducts(filters?: {
 export async function getAllProductsByGroupId(
   productGroupId: string
 ): Promise<ActionResultWithData<Product[]>> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     const { data, error } = await supabase
       .from("products")
@@ -270,7 +274,7 @@ export async function getAllProductsByGroupId(
 export async function getSingleProduct(
   id: string
 ): Promise<ActionResultWithData<Product>> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     const { data, error } = await supabase
       .from("products")
@@ -305,7 +309,7 @@ export async function getSingleProduct(
 export async function createProduct(
   data: CreateProduct
 ): Promise<ActionResultWithId> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     const { data: result, error } = await supabase
@@ -329,7 +333,7 @@ export async function updateProduct(
   data: UpdateProduct,
   id: string
 ): Promise<ActionResult> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     const { error } = await supabase.from("products").update(data).eq("id", id);
@@ -347,7 +351,7 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string): Promise<ActionResult> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     const { error } = await supabase.from("products").delete().eq("id", id);
@@ -369,7 +373,7 @@ export async function updateProductCategory(
   productId: string,
   categoryId: string
 ): Promise<ActionResult> {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
 
   try {
     // First check if there's an existing product_category relation
@@ -428,7 +432,7 @@ export async function updateProductCategory(
 // }
 
 // export async function getProductGroupWithProducts(productId: string): Promise<ActionResultWithData<ProductGroupWithAllProducts>> {
-//   const supabase = createClient(cookies());
+//   const supabase = await getServerSupabase();
 
 //   try {
 //     // First get the selected variant

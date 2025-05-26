@@ -3,8 +3,12 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
+async function getServerSupabase() {
+  return await createClient(cookies());
+}
+
 export async function getColors() {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     const { data, error } = await supabase
       .from("colors")
@@ -27,8 +31,7 @@ export async function getColors() {
 }
 
 export async function createColor(data: { name: string; hex_code: string }) {
-  const supabase = createClient(cookies());
-
+  const supabase = await getServerSupabase();
   try {
     const { data: result, error } = await supabase
       .from("colors")

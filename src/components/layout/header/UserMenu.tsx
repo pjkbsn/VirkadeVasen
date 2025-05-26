@@ -28,9 +28,8 @@ export const UserMenu = () => {
 
   return (
     <Popover>
-      <PopoverTrigger className="flex flex-col items-center cursor-pointer">
-        <CircleUserRound className="h-8 w-8" />
-        <p className="hidden md:block">Mitt konto</p>
+      <PopoverTrigger className="flex flex-col items-center cursor-pointer ">
+        <CircleUserRound className="size-6" />
       </PopoverTrigger>
       <PopoverContent className="w-40">
         <div className="grid gap-4">

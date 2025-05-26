@@ -1,9 +1,15 @@
-import { createClient } from "@/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
+"use server";
 
-const supabase = createClient();
+import { createClient } from "@/utils/supabase/server";
+import { User } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+
+async function getServerSupabase() {
+  return await createClient(cookies());
+}
 
 export async function signUp(email: string, password: string) {
+  const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -12,6 +18,7 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signIn(email: string, password: string) {
+  const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -20,11 +27,13 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
+  const supabase = await getServerSupabase();
   const { error } = await supabase.auth.signOut();
   return { error };
 }
 
 export async function getCurrentUser(): Promise<User | null> {
+  const supabase = await getServerSupabase();
   const { data } = await supabase.auth.getUser();
   return data?.user || null;
 }

@@ -3,8 +3,12 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
+async function getServerSupabase() {
+  return await createClient(cookies());
+}
+
 export async function getCategories() {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     const { data, error } = await supabase
       .from("categories")
@@ -30,7 +34,7 @@ export async function createCategory(data: {
   description?: string;
   parent_id?: string;
 }) {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   const slug = data.name
     .toLowerCase()
     .replace(/å/g, "a")
@@ -59,7 +63,7 @@ export async function createCategory(data: {
 }
 
 export async function getCategoryRelation() {
-  const supabase = createClient(cookies());
+  const supabase = await getServerSupabase();
   try {
     const { data, error } = await supabase.from("product_categories").select(
       `
