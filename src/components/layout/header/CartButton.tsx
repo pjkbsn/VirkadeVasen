@@ -66,6 +66,11 @@ export const CartButton = () => {
     }
   };
 
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   return (
     <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -77,20 +82,17 @@ export const CartButton = () => {
             </div>
           )}
         </SheetTrigger>
-        <SheetContent side="right" className="flex w-[600px]">
+        <SheetContent side="right" className="flex">
           <SheetHeader>
             <SheetTitle className="text-center">Varukorg</SheetTitle>
-            <SheetDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </SheetDescription>
+            <SheetDescription></SheetDescription>
           </SheetHeader>
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 overflow-y-auto">
             {items &&
               items.map((product) => (
                 <Card
                   key={product.id}
-                  className="flex-row h-fit border-none shadow-none p-5 gap-2"
+                  className="flex-row h-fit border-none shadow-none p-5 gap-2 bg-background"
                 >
                   <Image
                     src={product.image}
@@ -124,9 +126,14 @@ export const CartButton = () => {
                 </Card>
               ))}
           </ScrollArea>
-          <div className="flex flex-col gap-5 mb-10">
+          <div className="flex flex-col gap-5 mb-10 p-5">
+            <p className="flex justify-between">
+              Total: <span>{totalPrice} kr</span>
+            </p>
             <Button className="bg-green-500">Gå till kassan</Button>
-            <Button variant="outline">Fortsätt handla</Button>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              Fortsätt handla
+            </Button>
           </div>
         </SheetContent>
       </Sheet>

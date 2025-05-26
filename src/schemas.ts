@@ -20,7 +20,7 @@ export const productSchema = z.object({
   id: z.string(),
   price: z.number(),
   stock: z.number(),
-  image_url: z.array(z.string()).nullable(),
+  image_url: z.array(z.string()),
   product_groups: productGroupsSchema,
   colors: colorSchema,
 });
@@ -28,7 +28,7 @@ export const productSchema = z.object({
 export const productCardSchema = z.object({
   id: z.string(),
   price: z.number(),
-  image_url: z.array(z.string()).nullable(),
+  image_url: z.array(z.string()),
   colors: colorSchema,
   product_groups: productGroupsCardSchema,
 });
