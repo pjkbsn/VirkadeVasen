@@ -9,9 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ProductDetailCarousel } from "@/components/common/ProductDetailsCarousel";
 import { ProductCard } from "./ProductCard";
+import { AddToCartButton } from "../common/AddToCartButton";
 
 type ProductDetailsProps = {
   product: Product | undefined;
@@ -22,7 +22,10 @@ export function ProductDetails({
   product,
   relatedProducts,
 }: ProductDetailsProps) {
-  console.log("ProductDetails relatedProducts:", relatedProducts);
+  if (!product) {
+    return;
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 items-start gap-5">
@@ -58,10 +61,9 @@ export function ProductDetails({
               <p>{product?.colors.name}</p>
             </div>
             <p>Kvar i lager: {product?.stock}</p>
-            Antal: -incoming clicker-
           </CardFooter>
           <div className="flex w-full items-center justify-center">
-            <Button className="w-3/4">Lägg i varukorg</Button>
+            <AddToCartButton product={product} />
           </div>
         </Card>
       </div>

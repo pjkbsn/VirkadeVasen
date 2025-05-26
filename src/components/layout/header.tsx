@@ -46,7 +46,7 @@ export default function Header() {
         </div>
 
         {/* Right side - Auth and cart */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {user ? (
             <UserMenu />
           ) : (
@@ -55,7 +55,7 @@ export default function Header() {
                 href="/login"
                 className="hover:underline flex flex-col items-center"
               >
-                <CircleUserRound className="h-8 w-8" />
+                <CircleUserRound className="h-6 w-6" />
                 Logga in
               </Link>
             </div>
