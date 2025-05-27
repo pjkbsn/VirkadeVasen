@@ -135,6 +135,7 @@ export async function getProducts(filters?: {
   cardView?: boolean;
   latestAdded?: boolean;
   limit?: number;
+  offset?: number;
 }): Promise<ActionResultWithData<Product[]>> {
   const supabase = await getServerSupabase();
   try {
@@ -211,6 +212,17 @@ export async function getProducts(filters?: {
     // Filter by max price
     if (filters?.maxPrice) {
       query = query.lte("price", filters.maxPrice);
+    }
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    if (filters?.offset) {
+      query = query.range(
+        filters.offset,
+        filters.offset + (filters.limit || 12) - 1
+      );
     }
 
     // Execute the final query

@@ -53,7 +53,7 @@ export const ProductCarousel = ({ carouselData }: ProductCarouselProps) => {
                     : "No image available"
                 }
                 colorName={item.colors.name}
-                height="96"
+                // height="96"
               />
             </CarouselItem>
           ))}
