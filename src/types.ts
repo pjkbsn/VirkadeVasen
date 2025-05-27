@@ -51,3 +51,8 @@ export type Color = {
   name: string;
   hex_code: string;
 };
+
+export type CartItemList = {
+  quantity: number;
+  products: Product;
+};

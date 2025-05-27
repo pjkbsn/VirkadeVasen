@@ -11,6 +11,9 @@ type AddToCartButtonProps = {
   product: Product;
 };
 
+// FIXA OM GÅR IN PÅ SAMMA PRODUKT OCH LÄGGER TILL FLER ANTAL
+// SKA DET PLUSSAS PÅ PÅ BEFINTLIGT ANTAL
+
 export const AddToCartButton = ({ product }: AddToCartButtonProps) => {
   const [quantity, setQuantity] = useState<number>(1);
   const { addItem, items } = useCartStore();

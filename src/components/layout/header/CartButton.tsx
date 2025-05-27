@@ -87,12 +87,14 @@ export const CartButton = () => {
             <SheetTitle className="text-center">Varukorg</SheetTitle>
             <SheetDescription></SheetDescription>
           </SheetHeader>
+
+          {/* Gör till komponent då liknande finns i CartItemList.tsx */}
           <ScrollArea className="flex-1 overflow-y-auto">
             {items &&
               items.map((product) => (
                 <Card
                   key={product.id}
-                  className="flex-row h-fit border-none shadow-none p-5 gap-2 bg-background"
+                  className="flex-row h-fit shadow-none p-5 gap-2 bg-background border-b-1 border-t-0 border-r-0 border-l-0 rounded-none border-b-border"
                 >
                   <Image
                     src={product.image}
