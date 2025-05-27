@@ -21,7 +21,9 @@ export const FilterCheckbox = ({
         onCheckedChange={onChange}
         className="cursor-pointer"
       />
-      <label htmlFor={id}>{labelText}</label>
+      <label htmlFor={id} className="cursor-pointer">
+        {labelText}
+      </label>
     </div>
   );
 };

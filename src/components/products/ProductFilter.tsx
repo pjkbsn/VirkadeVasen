@@ -48,12 +48,19 @@ export const ProductFilter = ({
     setSelectedFilters((prev) => {
       const newFilters = { ...prev };
 
-      if (isChecked) {
-        newFilters[type] = [...prev[type], value];
+      if (type === "prices") {
+        if (isChecked) {
+          newFilters.prices = [value];
+        } else {
+          newFilters.prices = [];
+        }
       } else {
-        newFilters[type] = prev[type].filter((item) => item !== value);
+        if (isChecked) {
+          newFilters[type] = [...prev[type], value];
+        } else {
+          newFilters[type] = prev[type].filter((item) => item !== value);
+        }
       }
-
       return newFilters;
     });
   };
@@ -64,7 +71,7 @@ export const ProductFilter = ({
         type="multiple"
         defaultValue={["item-1", "item-2", "item-3", "item-4"]}
       >
-        <AccordionItem value="item-1">
+        {/* <AccordionItem value="item-1">
           <AccordionTrigger>Färger</AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
             {colors.map((color) => (
@@ -79,9 +86,11 @@ export const ProductFilter = ({
               />
             ))}
           </AccordionContent>
-        </AccordionItem>
+        </AccordionItem> */}
         <AccordionItem value="item-2">
-          <AccordionTrigger>Kategori</AccordionTrigger>
+          <AccordionTrigger className="cursor-pointer">
+            Kategori
+          </AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
             {categories.map((category) => (
               <FilterCheckbox
@@ -97,7 +106,7 @@ export const ProductFilter = ({
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionTrigger>Pris</AccordionTrigger>
+          <AccordionTrigger className="cursor-pointer">Pris</AccordionTrigger>
           <AccordionContent className="flex flex-col gap-2">
             <FilterCheckbox
               id="200"
