@@ -16,23 +16,23 @@ import { toast } from "sonner";
 import { useCartStore } from "@/store/cart-store";
 import { removeCartItem } from "@/actions/cart";
 
-type CartItemListProps = {
-  productData: {
-    quantity: number;
-    products: Product;
-  }[];
-};
+// type CartItemListProps = {
+//   productData: {
+//     quantity: number;
+//     products: Product;
+//   }[];
+// };
 
-export const CartItemList = ({ productData }: CartItemListProps) => {
-  console.log(
-    "ProductData: ",
-    productData.map((item) => item.products.id)
-  );
+export const CartItemList = (/* { productData }: CartItemListProps */) => {
+  const { items } = useCartStore();
+
+  // console.log(
+  //   "ProductData: ",
+  //   productData.map((item) => item.products.id)
+  // );
 
   const handleDeleteItem = async (id: string) => {
-    const currentItem = productData.find(
-      (product) => product.products.id === id
-    );
+    const currentItem = items.find((product) => product.id === id);
     console.log("currentItem", currentItem);
     console.log("currentItem", id);
 
@@ -59,14 +59,14 @@ export const CartItemList = ({ productData }: CartItemListProps) => {
     <div className="flex flex-col items-center justify-center w-full">
       {/* Gör till komponent då liknande finns i CartButton.tsx */}
       <ScrollArea className="flex-1 overflow-y-auto w-2/5">
-        {productData &&
-          productData.map((product) => (
+        {items &&
+          items.map((product) => (
             <Card
-              key={product.products.id}
+              key={product.id}
               className="flex-row h-fit shadow-none p-5 gap-2 bg-background border-b-1 border-t-0 border-r-0 border-l-0 rounded-none border-b-border"
             >
               <Image
-                src={product.products.image_url[0]}
+                src={product.image}
                 alt={"Produktbild"}
                 height="250"
                 width="150"
@@ -77,26 +77,23 @@ export const CartItemList = ({ productData }: CartItemListProps) => {
               <div className="flex flex-col w-full gap-0 p-0">
                 <CardHeader className="w-full h-full p-0 gap-5 flex flex-col">
                   <div className="flex justify-between w-full items-center">
-                    <CardTitle>
-                      {product.products.product_groups.name}
-                    </CardTitle>
+                    <CardTitle>{product.name}</CardTitle>
                     <Button
                       variant="ghost"
                       className=" cursor-pointer"
-                      onClick={() => handleDeleteItem(product.products.id)}
+                      onClick={() => handleDeleteItem(product.id)}
                     >
                       X
                     </Button>
                   </div>
                   <CardDescription>
-                    Pris: {product.products.price}kr <br /> Färg:{" "}
-                    {product.products.colors.name}
+                    Pris: {product.price}kr <br /> Färg: {product.color}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <CartItemQuantity
                     item={{
-                      id: product.products.id,
+                      id: product.id,
                       quantity: product.quantity,
                     }}
                   />
