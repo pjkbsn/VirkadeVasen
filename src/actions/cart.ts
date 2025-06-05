@@ -1,15 +1,22 @@
 "use server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { cartItemSchema, productSchema } from "@/schemas";
+import { CartItemList, Product } from "@/types";
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { z } from "zod";
 
 type CartProps = {
   id: string;
   quantity: number;
 };
+
+export type ActionResultWithData<T> =
+  | { success: true; data: T }
+  | { success: false; error: string; data: T };
 
 async function getServerSupabase() {
   return await createClient(cookies());
@@ -100,6 +107,46 @@ export async function removeCartItem(id: string) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export async function getCart(): Promise<ActionResultWithData<CartItemList[]>> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { success: false, error: "User not authenticated", data: [] };
+  }
+
+  const supabase = await getServerSupabase();
+
+  try {
+    const { data, error } = await supabase
+      .from("cart")
+      .select(
+        `
+        quantity,
+        products:product_id(id, price, image_url
+        ,colors:color_id(name, hex_code)
+        ,product_groups:product_groups_id(id, name)
+        )
+        `
+      )
+      .match({ user_id: user.id });
+
+    if (error) throw new Error(error.message);
+
+    const parsed = z.array(cartItemSchema).parse(data);
+
+    return {
+      success: true,
+      data: parsed,
+    };
+  } catch (error) {
+    console.error("Error getting cart: ", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      data: [],
     };
   }
 }

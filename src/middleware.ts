@@ -70,40 +70,13 @@
 //   matcher: ["/account/:path*", "/admin/:path*"],
 // };
 
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/middleware";
+import { NextRequest } from "next/server";
+import { updateSession } from "@/utils/supabase/middleware";
 
-export async function middleware(req: NextRequest) {
-  // Create client using the middleware utility
-  const { supabase, response } = createClient(req);
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Protected routes that require authentication
-  if (req.nextUrl.pathname.startsWith("/account") && !user) {
-    const redirectUrl = new URL("/login", req.url);
-    redirectUrl.searchParams.set("redirectedFrom", req.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // Admin routes - check for admin role
-  if (req.nextUrl.pathname.startsWith("/admin")) {
-    if (
-      !user ||
-      !user?.app_metadata?.role ||
-      user.app_metadata.role !== "admin"
-    ) {
-      return NextResponse.rewrite(new URL("/not-found", req.url));
-    }
-  }
-
-  // For all other routes, return the response
-  return response;
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
 }
 
-// Configure middleware to run only on specific paths
 export const config = {
   matcher: ["/account/:path*", "/admin/:path*"],
 };

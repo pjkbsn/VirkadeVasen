@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ColorForm } from "./ColorForm";
+import { ColorForm } from "../forms/ColorForm";
 import { Color } from "@/types";
 
 type ColorFormDialogProps = {

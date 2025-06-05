@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ProductGroups, Color } from "@/types";
-import { ProductForm } from "./ProductForm";
+import { ProductForm } from "../forms/ProductForm";
 import {
   Select,
   SelectContent,

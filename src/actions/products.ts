@@ -10,7 +10,6 @@ import {
 } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { z } from "zod";
 
 // Base type with mandatory success field
@@ -29,7 +28,7 @@ export type ActionResultWithId =
   | { success: false; error: string };
 
 async function getServerSupabase() {
-  return await createClient(cookies());
+  return await createClient();
 }
 
 export async function getProductGroups(): Promise<

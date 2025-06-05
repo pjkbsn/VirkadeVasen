@@ -13,7 +13,7 @@ import { UserMenu } from "./header/UserMenu";
 export default function Header() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
-  const { user } = useAuthStore();
+  const { user, loading } = useAuthStore();
 
   return (
     <header
@@ -47,18 +47,23 @@ export default function Header() {
 
         {/* Right side - Auth and cart */}
         <div className="flex items-center gap-6">
-          {user ? (
-            <UserMenu />
+          {!loading ? (
+            user ? (
+              <UserMenu />
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="hover:underline flex flex-col items-center"
+                >
+                  <CircleUserRound className="h-6 w-6" />
+                  Logga in
+                </Link>
+              </div>
+            )
           ) : (
-            <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="hover:underline flex flex-col items-center"
-              >
-                <CircleUserRound className="h-6 w-6" />
-                Logga in
-              </Link>
-            </div>
+            // Auth loading placeholder with same dimensions
+            <div className="flex items-center gap-3 h-6 w-[70px]" />
           )}
           <CartButton />
           <ThemeToggle />

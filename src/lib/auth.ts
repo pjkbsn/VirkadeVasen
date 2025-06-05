@@ -2,10 +2,9 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { User } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
 
 async function getServerSupabase() {
-  return await createClient(cookies());
+  return await createClient();
 }
 
 export async function signUp(email: string, password: string) {

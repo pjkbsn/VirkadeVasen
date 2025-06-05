@@ -26,6 +26,8 @@ import { useCartStore } from "@/store/cart-store";
 import { CartItemQuantity } from "@/components/common/CartItemQuantity";
 import { removeCartItem } from "@/actions/cart";
 import { toast } from "sonner";
+import Link from "next/link";
+import { CartItemsDisplay } from "@/components/cart/CartItemsDisplay";
 export const CartButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { items } = useCartStore();
@@ -40,31 +42,31 @@ export const CartButton = () => {
     };
   }, []);
 
-  const handleDeleteItem = async (id: string) => {
-    const currentItem = items.find((product) => product.id === id);
-    console.log("currentItem", currentItem);
-    console.log("currentItem", id);
+  // const handleDeleteItem = async (id: string) => {
+  //   const currentItem = items.find((product) => product.id === id);
+  //   console.log("currentItem", currentItem);
+  //   console.log("currentItem", id);
 
-    if (!currentItem) {
-      toast.error("CurrentItem not found");
-      return;
-    }
+  //   if (!currentItem) {
+  //     toast.error("CurrentItem not found");
+  //     return;
+  //   }
 
-    useCartStore.getState().removeItem(id);
+  //   useCartStore.getState().removeItem(id);
 
-    try {
-      const result = await removeCartItem(id);
-      if (!result.success) {
-        toast.error("Failed to remove item");
-        useCartStore.getState().addItem(currentItem);
-      } else {
-        toast.success("Successfully removed item");
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-      useCartStore.getState().addItem(currentItem);
-    }
-  };
+  //   try {
+  //     const result = await removeCartItem(id);
+  //     if (!result.success) {
+  //       toast.error("Failed to remove item");
+  //       useCartStore.getState().addItem(currentItem);
+  //     } else {
+  //       toast.success("Successfully removed item");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Something went wrong");
+  //     useCartStore.getState().addItem(currentItem);
+  //   }
+  // };
 
   const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -87,50 +89,19 @@ export const CartButton = () => {
             <SheetTitle className="text-center">Varukorg</SheetTitle>
             <SheetDescription></SheetDescription>
           </SheetHeader>
-          <ScrollArea className="flex-1 overflow-y-auto">
-            {items &&
-              items.map((product) => (
-                <Card
-                  key={product.id}
-                  className="flex-row h-fit border-none shadow-none p-5 gap-2 bg-background"
-                >
-                  <Image
-                    src={product.image}
-                    alt={"Produktbild"}
-                    height="250"
-                    width="150"
-                    // fill
-                    // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    // className="object-contain"
-                  />
-                  <div className="flex flex-col w-full gap-0 p-0">
-                    <CardHeader className="w-full h-full p-0 gap-5 flex flex-col">
-                      <div className="flex justify-between w-full items-center">
-                        <CardTitle>{product.name}</CardTitle>
-                        <Button
-                          variant="ghost"
-                          className=" cursor-pointer"
-                          onClick={() => handleDeleteItem(product.id)}
-                        >
-                          X
-                        </Button>
-                      </div>
-                      <CardDescription>
-                        Pris: {product.price}kr <br /> Färg: {product.color}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <CartItemQuantity item={product} />
-                    </CardContent>
-                  </div>
-                </Card>
-              ))}
-          </ScrollArea>
+
+          {/* Gör till komponent då liknande finns i CartItemList.tsx */}
+          <CartItemsDisplay cartItems={items} />
           <div className="flex flex-col gap-5 mb-10 p-5">
             <p className="flex justify-between">
               Total: <span>{totalPrice} kr</span>
             </p>
-            <Button className="bg-green-500">Gå till kassan</Button>
+            <Link
+              href="/cart"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full text-center"
+            >
+              Gå till kassan
+            </Link>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Fortsätt handla
             </Button>

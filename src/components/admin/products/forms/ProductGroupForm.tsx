@@ -26,7 +26,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { CornerDownRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { CategoryFormDialog } from "./CategoryFormDialog";
+import { CategoryFormDialog } from "../dialogs/CategoryFormDialog";
 import { Category, ProductGroups } from "@/types";
 import {
   createProductGroup,

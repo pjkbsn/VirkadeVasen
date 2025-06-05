@@ -26,11 +26,11 @@ import {
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { ImagesUpload } from "./ImagesUpload";
-import { ColorFormDialog } from "./ColorFormDialog";
-import { Color } from "@/types";
+import { ImagesUpload } from "../ImagesUpload";
+import { ColorFormDialog } from "../dialogs/ColorFormDialog";
+import { Color, ProductFormProps } from "@/types";
 import { createProduct, updateProduct } from "@/actions/products";
-import { createColor } from "@/actions/colors";
+// import { createColor } from "@/actions/colors";
 
 // Schema definition remains the same
 const formSchema = z.object({
@@ -45,21 +45,6 @@ const formSchema = z.object({
   image_url: z.string().array().optional(),
 });
 
-type ProductFormProps = {
-  variant?: {
-    id: string;
-    color_id: string;
-    price: string;
-    stock: string;
-    image_url?: string[];
-  };
-  productId?: string;
-  initialColors: Color[];
-  onSuccess?: () => void;
-  newProduct?: boolean;
-  onAbort?: () => void;
-};
-
 export const ProductForm = ({
   variant,
   productId,
@@ -67,13 +52,13 @@ export const ProductForm = ({
   onSuccess,
   newProduct,
   onAbort,
+  isEditing = false,
 }: ProductFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
   const [colors, setColors] = useState<Color[]>(initialColors);
   const [resetKey, setResetKey] = useState(0);
   const router = useRouter();
-  const isEditing = !!variant;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
