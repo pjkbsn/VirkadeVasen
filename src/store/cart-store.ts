@@ -1,13 +1,6 @@
+import { CartItem } from "@/types";
 import { create } from "zustand";
 
-type CartItem = {
-  id: string;
-  name: string;
-  color: string;
-  image: string;
-  quantity: number;
-  price: number;
-};
 type CartState = {
   items: CartItem[];
   addItem: (item: CartItem) => void;

@@ -1,19 +1,26 @@
-import { getProductGroups } from "@/actions/products";
+import { getProductGroups, getProducts } from "@/actions/products";
 import { getCategories } from "@/actions/categories";
 import { getColors } from "@/actions/colors";
 // import { NewProductClient } from "./client";
-import { ProductGroupDialog } from "@/components/admin/products/ProductGroupDialog";
-import { ProductDialog } from "@/components/admin/products/ProductDialog";
+import { ProductGroupDialog } from "@/components/admin/products/dialogs/ProductGroupDialog";
+import { ProductDialog } from "@/components/admin/products/dialogs/ProductDialog";
 import { Button } from "@/components/ui/button";
-// import { DataTable } from "@/components/data-table";
 import { Plus } from "lucide-react";
+// import { ProductTable } from "@/components/admin/products/table/ProductTable";
+// import { DataTable } from "@/components/admin/products/table/data-table";
+// import { columns } from "@/components/admin/products/table/columns";
+import { ProductDataTableClient } from "@/components/admin/products/table/ProductDataTableClient";
 
 export default async function ProductsPage() {
-  const [productGroups, categories, colors] = await Promise.all([
+  const [productGroups, products, categories, colors] = await Promise.all([
     getProductGroups(),
+    getProducts(),
     getCategories(),
     getColors(),
   ]);
+
+  const productsData = products.success ? products.data : [];
+  const colorsData = colors.success ? colors.data : [];
 
   return (
     <div className="container mx-auto py-10">
@@ -24,7 +31,7 @@ export default async function ProductsPage() {
           <ProductGroupDialog
             productGroups={productGroups.success ? productGroups.data : []}
             categories={categories.success ? categories.data : []}
-            colors={colors.success ? colors.data : []}
+            colors={colorsData}
           >
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Skapa produktgrupp + produkt
@@ -33,7 +40,7 @@ export default async function ProductsPage() {
 
           <ProductDialog
             productGroups={productGroups.success ? productGroups.data : []}
-            colors={colors.success ? colors.data : []}
+            colors={colorsData}
           >
             <Button variant="outline">
               <Plus className="mr-2 h-4 w-4" /> Lägg till produkt
@@ -41,11 +48,7 @@ export default async function ProductsPage() {
           </ProductDialog>
         </div>
       </div>
-
-      {/* <DataTable
-        columns={ProductsColumns}
-        data={products.success ? products.data : []}
-      /> */}
+      <ProductDataTableClient data={productsData} colors={colorsData} />
     </div>
   );
 }

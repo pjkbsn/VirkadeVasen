@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { CategoryForm } from "./CategoryForm";
+import { CategoryForm } from "../forms/CategoryForm";
 import { Category } from "@/types";
 
 type CategoryFormDialogProps = {

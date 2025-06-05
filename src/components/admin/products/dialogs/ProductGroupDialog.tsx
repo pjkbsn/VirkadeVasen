@@ -10,8 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProductGroupForm } from "./ProductGroupForm";
-import { ProductForm } from "./ProductForm";
+import { ProductGroupForm } from "../forms/ProductGroupForm";
+import { ProductForm } from "../forms/ProductForm";
 import { ProductGroups, Category, Color } from "@/types";
 import { toast } from "sonner";
 import { deleteProductGroup } from "@/actions/products";
