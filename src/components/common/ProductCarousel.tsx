@@ -40,7 +40,7 @@ export const ProductCarousel = ({ carouselData }: ProductCarouselProps) => {
           {carouselData.map((item) => (
             <CarouselItem
               key={item.id}
-              className="pl-4 basis-1/1 sm:basis-1/2 lg:basis-1/4"
+              className="pl-4 basis-1/2 sm:basis-1/3  lg:basis-1/4"
             >
               <ProductCard
                 key={item.id}
