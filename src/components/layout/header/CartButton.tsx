@@ -28,8 +28,10 @@ import { removeCartItem } from "@/actions/cart";
 import { toast } from "sonner";
 import Link from "next/link";
 import { CartItemsDisplay } from "@/components/cart/CartItemsDisplay";
+
 export const CartButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false);
   const { items } = useCartStore();
 
   useEffect(() => {
@@ -42,37 +44,44 @@ export const CartButton = () => {
     };
   }, []);
 
-  // const handleDeleteItem = async (id: string) => {
-  //   const currentItem = items.find((product) => product.id === id);
-  //   console.log("currentItem", currentItem);
-  //   console.log("currentItem", id);
-
-  //   if (!currentItem) {
-  //     toast.error("CurrentItem not found");
-  //     return;
-  //   }
-
-  //   useCartStore.getState().removeItem(id);
-
-  //   try {
-  //     const result = await removeCartItem(id);
-  //     if (!result.success) {
-  //       toast.error("Failed to remove item");
-  //       useCartStore.getState().addItem(currentItem);
-  //     } else {
-  //       toast.success("Successfully removed item");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Something went wrong");
-  //     useCartStore.getState().addItem(currentItem);
-  //   }
-  // };
-
   const totalPrice = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
+  const handleCheckout = async () => {
+    if (items.length === 0) {
+      toast.error("Din varukorg är tom");
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const response = await fetch("/api/checkout_sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Network response was not ok");
+      }
+
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Error redirecting to checkout:", error);
+      toast.error("Det gick inte att gå till kassan. Försök igen senare.");
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
   return (
     <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -96,12 +105,14 @@ export const CartButton = () => {
             <p className="flex justify-between">
               Total: <span>{totalPrice} kr</span>
             </p>
-            <Link
-              href="/cart"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full text-center"
+            <Button
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+              className="w-full"
+              // className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full text-center"
             >
-              Gå till kassan
-            </Link>
+              {isCheckingOut ? "Bearbetar..." : "Gå till kassan"}
+            </Button>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Fortsätt handla
             </Button>
