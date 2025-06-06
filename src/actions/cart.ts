@@ -6,7 +6,6 @@ import { CartItemList, Product } from "@/types";
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { z } from "zod";
 
 type CartProps = {
@@ -19,7 +18,7 @@ export type ActionResultWithData<T> =
   | { success: false; error: string; data: T };
 
 async function getServerSupabase() {
-  return await createClient(cookies());
+  return await createClient();
 }
 
 export const addToCart = async ({ id, quantity }: CartProps) => {
@@ -147,6 +146,33 @@ export async function getCart(): Promise<ActionResultWithData<CartItemList[]>> {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
       data: [],
+    };
+  }
+}
+
+export async function clearCart() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { success: false, error: "User not authenticated", data: [] };
+  }
+
+  const supabase = await getServerSupabase();
+
+  try {
+    const { error } = await supabase
+      .from("cart")
+      .delete()
+      .eq("user_id", user.id);
+
+    if (error) throw new Error(error.message);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
