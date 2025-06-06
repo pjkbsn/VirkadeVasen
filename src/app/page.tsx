@@ -8,7 +8,7 @@ export default function HomePage() {
       <div className="snap-start h-[97vh] relative w-full">
         <HeroSection />
       </div>
-      <div className="snap-start min-h-screen relative min-w-screen">
+      <div className="snap-start h-screen relative w-full">
         <OfferingsSection />
       </div>
       <div className="snap-start h-[40vh] w-full">

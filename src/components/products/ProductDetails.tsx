@@ -67,31 +67,32 @@ export function ProductDetails({
           </div>
         </Card>
       </div>
-      <div className="flex flex-col items-center mt-30 gap-5">
-        <h1 className="font-sans font-bold underline">
-          Upptäck mer väsen i samma färg
-        </h1>
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 p-4">
-            {relatedProducts &&
-              relatedProducts.length > 0 &&
-              relatedProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.product_groups.name}
-                  price={product.price}
-                  imageUrl={
-                    product.image_url?.length
-                      ? product.image_url[0]
-                      : "No image available"
-                  }
-                  colorName={product.colors.name}
-                />
-              ))}
+      {relatedProducts.length > 0 && (
+        <div className="flex flex-col items-center mt-30 gap-5">
+          <h1 className="font-sans font-bold underline">
+            Upptäck mer väsen i samma färg
+          </h1>
+          <div className="w-full max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 p-4">
+              {relatedProducts &&
+                relatedProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.product_groups.name}
+                    price={product.price}
+                    imageUrl={
+                      product.image_url?.length
+                        ? product.image_url[0]
+                        : "No image available"
+                    }
+                    colorName={product.colors.name}
+                  />
+                ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
