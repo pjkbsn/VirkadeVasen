@@ -33,7 +33,9 @@ export const CartItemQuantity = ({ item }: CartItemQuantityProps) => {
       }
     } catch (error: unknown) {
       updateQuantity(item.id, prevQuantity);
-      toast.error("Something went wrong");
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong"
+      );
     }
   };
 

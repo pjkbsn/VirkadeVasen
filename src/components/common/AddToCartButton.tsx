@@ -71,7 +71,9 @@ export const AddToCartButton = ({ product }: AddToCartButtonProps) => {
       } else {
         useCartStore.getState().removeItem(product.id);
       }
-      console.error("Failed to add to cart");
+      console.error(
+        error instanceof Error ? error.message : "Failed to add to cart"
+      );
     }
   };
 
