@@ -42,7 +42,7 @@ export default async function Success({ searchParams }: PageProps) {
     await clearCart();
     return (
       <div className="flex items-center justify-center py-16 px-4 h-full">
-        <section className="max-w-3xl w-full text-center bg-white p-8 rounded-lg">
+        <section className="max-w-3xl w-full text-center text-foreground bg-background p-8 rounded-lg">
           <h1 className="text-2xl font-bold mb-6">Beställning mottagen!</h1>
 
           <div className="mb-6">
