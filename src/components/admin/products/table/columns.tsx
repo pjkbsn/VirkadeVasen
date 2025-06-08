@@ -95,7 +95,7 @@ const ProductActionsCell = ({
         } else {
           toast.error("Något gick fel: " + result.error);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         toast.error("Ett fel uppstod");
       } finally {
         setIsDeleting(false);

@@ -140,7 +140,7 @@ export async function getProducts(filters?: {
   try {
     // Base query structure - used whether filtering by categories or not
 
-    let baseQuery = filters?.cardView
+    const baseQuery = filters?.cardView
       ? `id, price, image_url, product_groups:product_groups_id(id, name), colors:color_id(id, name, hex_code)`
       : `
       id,

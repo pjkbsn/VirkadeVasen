@@ -65,9 +65,13 @@ export const ImagesUpload = ({
       setImageUrls((prev) => [...prev, publicUrl]);
 
       toast.success("Image uploaded successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error uploading image:", error);
-      toast.error(error.message || "Failed to upload image");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Fel inträffades under bilduppladdning"
+      );
     } finally {
       setIsUploading(false);
       // Clear the input to allow uploading the same file again
@@ -104,7 +108,7 @@ export const ImagesUpload = ({
           toast.success("Image removed");
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error removing image:", error);
     }
   };

@@ -35,8 +35,8 @@ export const CartItemsDisplay = ({ cartItems }: { cartItems: CartItem[] }) => {
       } else {
         toast.success("Successfully removed item");
       }
-    } catch (error) {
-      toast.error("Something went wrong");
+    } catch (error: unknown) {
+      toast.error("Något gick fel");
       useCartStore.getState().addItem(currentItem);
     }
   };

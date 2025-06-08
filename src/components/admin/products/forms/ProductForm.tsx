@@ -101,15 +101,19 @@ export const ProductForm = ({
       if (isEditing && variant?.id) {
         const result = await updateProduct(variantData, variant.id);
         if (!result.success) {
-          throw new Error(result.error || "Failed to update variant");
+          throw new Error(
+            result.error || "Fel inträffades under uppdaterandet av produkt"
+          );
         }
-        toast.success("Variant updated successfully");
+        toast.success("Produkt skapades!");
       } else {
         const result = await createProduct(variantData);
         if (!result.success) {
-          throw new Error(result.error || "Failed to create variant");
+          throw new Error(
+            result.error || "Fel inträffades under skapandet av produkt"
+          );
         }
-        toast.success("Variant created successfully");
+        toast.success("Produkt skapades!");
       }
 
       // Handle success
@@ -120,9 +124,13 @@ export const ProductForm = ({
       } else {
         router.push(`/admin/products`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting variant:", error);
-      toast.error(error.message || "Failed to save variant");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Fel inträffades under skapandet av produkt"
+      );
     } finally {
       setIsSubmitting(false);
     }
