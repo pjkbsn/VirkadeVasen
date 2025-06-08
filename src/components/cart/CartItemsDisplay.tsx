@@ -36,7 +36,7 @@ export const CartItemsDisplay = ({ cartItems }: { cartItems: CartItem[] }) => {
         toast.success("Successfully removed item");
       }
     } catch (error: unknown) {
-      toast.error("Något gick fel");
+      toast.error(error instanceof Error ? error.message : "Något gick fel");
       useCartStore.getState().addItem(currentItem);
     }
   };

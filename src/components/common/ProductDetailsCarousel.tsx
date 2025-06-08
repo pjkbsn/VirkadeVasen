@@ -23,6 +23,24 @@ export const ProductDetailCarousel = ({
   const [current, setCurrent] = useState(0);
   const [thumbnailApi, setThumbnailApi] = useState<CarouselApi>();
 
+  useEffect(() => {
+    if (!api) return;
+
+    const onChange = () => {
+      setCurrent(api.selectedScrollSnap());
+
+      // Sync thumbnail carousel
+      if (thumbnailApi) {
+        thumbnailApi.scrollTo(api.selectedScrollSnap());
+      }
+    };
+
+    api.on("select", onChange);
+    return () => {
+      api.off("select", onChange);
+    };
+  }, [api, thumbnailApi]);
+
   if (!images || images.length === 0) {
     return (
       <div className="relative aspect-square w-full">
@@ -48,24 +66,6 @@ export const ProductDetailCarousel = ({
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!api) return;
-
-    const onChange = () => {
-      setCurrent(api.selectedScrollSnap());
-
-      // Sync thumbnail carousel
-      if (thumbnailApi) {
-        thumbnailApi.scrollTo(api.selectedScrollSnap());
-      }
-    };
-
-    api.on("select", onChange);
-    return () => {
-      api.off("select", onChange);
-    };
-  }, [api, thumbnailApi]);
 
   return (
     <div className="flex flex-col gap-2">

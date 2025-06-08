@@ -96,7 +96,7 @@ const ProductActionsCell = ({
           toast.error("Något gick fel: " + result.error);
         }
       } catch (error: unknown) {
-        toast.error("Ett fel uppstod");
+        toast.error(error instanceof Error ? error.message : "Ett fel uppstod");
       } finally {
         setIsDeleting(false);
       }
