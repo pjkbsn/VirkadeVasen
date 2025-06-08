@@ -6,8 +6,8 @@ import { clearCart } from "@/actions/cart";
 import Link from "next/link";
 
 interface PageProps {
-  params: { [key: string]: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ [key: string]: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function Success({ searchParams }: PageProps) {
@@ -39,7 +39,7 @@ export default async function Success({ searchParams }: PageProps) {
   }
 
   if (status === "complete") {
-    clearCart();
+    await clearCart();
     return (
       <div className="flex items-center justify-center py-16 px-4 h-full">
         <section className="max-w-3xl w-full text-center bg-white p-8 rounded-lg">
@@ -74,4 +74,6 @@ export default async function Success({ searchParams }: PageProps) {
       </div>
     );
   }
+
+  return null;
 }
