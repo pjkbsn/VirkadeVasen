@@ -45,8 +45,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAdmin: adminStatus,
         loading: false,
       });
-    } catch (err: any) {
-      set({ error: err.message, loading: false });
+    } catch (err: unknown) {
+      set({
+        error: err instanceof Error ? err.message : "An unknown error occurred",
+        loading: false,
+      });
     }
   },
 

@@ -134,9 +134,11 @@ export const ProductGroupForm = ({
 
         onVariantClick();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Form submission error:", error);
-      toast.error(error.message || "Något gick fel. Försök igen.");
+      toast.error(
+        error instanceof Error ? error.message : "Något gick fel. Försök igen."
+      );
     } finally {
       setIsSubmitting(false);
     }

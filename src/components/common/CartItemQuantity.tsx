@@ -31,7 +31,7 @@ export const CartItemQuantity = ({ item }: CartItemQuantityProps) => {
         updateQuantity(item.id, prevQuantity);
         toast.error(result.error || "Failed to update quantity");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       updateQuantity(item.id, prevQuantity);
       toast.error("Something went wrong");
     }

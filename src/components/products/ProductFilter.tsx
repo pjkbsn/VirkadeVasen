@@ -17,13 +17,12 @@ export type FilterState = {
 };
 
 type ProductFilterProps = {
-  colors: Color[];
+  colors?: Color[];
   categories: Category[];
   onFilterChange?: (filters: FilterState) => void;
 };
 
 export const ProductFilter = ({
-  colors,
   categories,
   onFilterChange,
 }: ProductFilterProps) => {

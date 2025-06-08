@@ -63,7 +63,7 @@ export const AddToCartButton = ({ product }: AddToCartButtonProps) => {
           toast.success("Added to cart!");
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (existingItem) {
         useCartStore
           .getState()
