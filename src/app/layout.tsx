@@ -26,7 +26,7 @@ const italianno = Italianno({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "VirkadeVäsen",
   description: "Handgjorda virkade väsen",
   icons: {
