@@ -26,11 +26,11 @@ const italianno = Italianno({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Virkade Väsen",
+export const metadata = {
+  title: "VirkadeVäsen",
   description: "Handgjorda virkade väsen",
   icons: {
-    icon: "/favicon.ico",
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
   },
 };
 
@@ -48,6 +48,10 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable}`}
       // style={{ "--header-height": "80px" } as React.CSSProperties}
     >
+      <head>
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <ThemeProvider
           attribute="class"
