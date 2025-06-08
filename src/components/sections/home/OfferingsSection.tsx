@@ -16,7 +16,7 @@ export const OfferingsSection = async () => {
       {/* Bottom carousel - minimized spacing */}
       <div className="flex flex-col items-center w-full mt-1 md:mt-2">
         <div className="w-full px-4 md:px-8">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-italianno pb-3 text-right md:text-left">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-italianno pb-3 text-right md:text-center">
             Senast tillagda
           </h2>
         </div>
