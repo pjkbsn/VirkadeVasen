@@ -21,8 +21,8 @@ const formSchema = z
   .object({
     email: z
       .string()
-      .min(1, { message: "Email address is required" })
-      .email({ message: "Invalid email address" }),
+      .min(1, { message: "Email adress behövs" })
+      .email({ message: "Ogiltig email adress" }),
     password: z
       .string()
       .min(6, { message: "Lösenord måste vara minst 6 tecken" })
@@ -72,9 +72,8 @@ export const SignupForm = () => {
               <FormControl>
                 <Input placeholder="Email" {...field} />
               </FormControl>
-              <div className="h-3">
-                <FormMessage />
-              </div>
+
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -105,14 +104,12 @@ export const SignupForm = () => {
                       <EyeIcon className="h-4 w-4" />
                     )}
                     <span className="sr-only">
-                      {showPassword ? "Hide password" : "Show password"}
+                      {showPassword ? "Göm lösenord" : "Visa lösenord"}
                     </span>
                   </Button>
                 </div>
               </FormControl>
-              <div className="h-3">
-                <FormMessage />
-              </div>
+              <FormMessage />
               <p className="text-xs text-muted-foreground mt-1">
                 Lösenordet måste innehålla minst 6 tecken, en stor bokstav, en
                 liten bokstav och en siffra.
@@ -133,9 +130,8 @@ export const SignupForm = () => {
                   {...field}
                 />
               </FormControl>
-              <div className="h-3">
-                <FormMessage />
-              </div>
+
+              <FormMessage />
             </FormItem>
           )}
         />

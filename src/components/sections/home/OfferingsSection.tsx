@@ -21,7 +21,6 @@ export const OfferingsSection = async () => {
           </h2>
         </div>
         <div className="w-full h-full">
-          {" "}
           {/* Fixed height for carousel */}
           <ProductCarousel carouselData={data} />
         </div>

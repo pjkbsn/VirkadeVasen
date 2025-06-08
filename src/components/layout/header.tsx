@@ -5,10 +5,10 @@ import Link from "next/link";
 import { CartButton } from "./header/CartButton";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { CircleUserRound } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { UserMenu } from "./header/UserMenu";
+import { LoginSheet } from "./header/LoginSheet";
 
 export default function Header() {
   const pathname = usePathname();
@@ -52,17 +52,17 @@ export default function Header() {
               <UserMenu />
             ) : (
               <div className="flex items-center gap-3">
-                <Link
+                <LoginSheet />
+                {/* <Link
                   href="/login"
                   className="hover:underline flex flex-col items-center"
                 >
                   <CircleUserRound className="h-6 w-6" />
-                  Logga in
-                </Link>
+                   Logga in 
+                </Link> */}
               </div>
             )
           ) : (
-            // Auth loading placeholder with same dimensions
             <div className="flex items-center gap-3 h-6 w-[70px]" />
           )}
           <CartButton />

@@ -1,4 +1,3 @@
-import { getCart } from "@/actions/cart";
 import { CartItemList } from "@/components/cart/CartItemList";
 
 export default async function CartPage() {

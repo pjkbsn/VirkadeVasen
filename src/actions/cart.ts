@@ -1,8 +1,8 @@
 "use server";
 
 import { getCurrentUser } from "@/lib/auth";
-import { cartItemSchema, productSchema } from "@/schemas";
-import { CartItemList, Product } from "@/types";
+import { cartItemSchema } from "@/schemas";
+import { CartItemList } from "@/types";
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
