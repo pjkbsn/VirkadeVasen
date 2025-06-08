@@ -5,15 +5,22 @@ import { stripe } from "@/lib/stripe";
 import { clearCart } from "@/actions/cart";
 import Link from "next/link";
 
-// Define the type for the page props
-type SuccessPageProps = {
-  searchParams: {
-    session_id?: string;
-  };
-};
+interface PageProps {
+  params: Promise<{ [key: string]: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-export default async function Success({ searchParams }: SuccessPageProps) {
-  const { session_id } = searchParams;
+export default async function Success({ searchParams }: PageProps) {
+  // Await the searchParams before accessing its properties
+  const resolvedSearchParams = await searchParams;
+
+  // Convert to string if it's an array (shouldn't happen for session_id)
+  const session_id =
+    typeof resolvedSearchParams.session_id === "string"
+      ? resolvedSearchParams.session_id
+      : Array.isArray(resolvedSearchParams.session_id)
+      ? resolvedSearchParams.session_id[0]
+      : undefined;
 
   if (!session_id)
     throw new Error("Please provide a valid session_id (`cs_test_...`)");
@@ -32,7 +39,7 @@ export default async function Success({ searchParams }: SuccessPageProps) {
   }
 
   if (status === "complete") {
-    clearCart();
+    await clearCart();
     return (
       <div className="flex items-center justify-center py-16 px-4 h-full">
         <section className="max-w-3xl w-full text-center bg-white p-8 rounded-lg">
@@ -67,4 +74,6 @@ export default async function Success({ searchParams }: SuccessPageProps) {
       </div>
     );
   }
+
+  return null;
 }
