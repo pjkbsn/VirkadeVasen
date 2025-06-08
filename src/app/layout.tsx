@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   title: "VirkadeVäsen",
   description: "Handgjorda virkade väsen",
   icons: {
-    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    icon: [{ url: "/favicon.ico?v=3", sizes: "any" }],
   },
 };
 
