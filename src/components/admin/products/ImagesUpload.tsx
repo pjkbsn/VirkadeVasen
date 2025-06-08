@@ -47,7 +47,7 @@ export const ImagesUpload = ({
       const filePath = `${fileName}`;
 
       // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("product-images")
         .upload(filePath, file, {
           cacheControl: "3600",

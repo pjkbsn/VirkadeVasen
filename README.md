@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+VirkadeVäsen - Handcrafted Macramé Ornaments
+VirkadeVäsen Banner
 
-## Getting Started
+An elegant e-commerce platform for handcrafted macramé ornaments and home decor, built with modern web technologies.
 
-First, run the development server:
+- Features -
+  User Authentication - Secure login and registration via Supabase Auth
+  Product Browsing - Browse products by category, color, or latest additions
+  Shopping Cart - Add products to cart, adjust quantities, and checkout
+  Payment Processing - Secure payments through Stripe integration
+  Responsive Design - Seamless experience on all devices
+- Tech Stack -
+  Frontend
+  Next.js 14 - React framework with server and client components
+  TypeScript - Type-safe code
+  Tailwind CSS - Utility-first styling
+  Shadcn/UI - Component library for rapid UI development
+  Zustand - State management
+  Backend
+  Next.js API Routes - Serverless API endpoints
+  Server Actions - Modern data mutation approach
+  Supabase - Database, authentication, and storage
+  Stripe - Payment processing
+  Zod - Runtime schema validation
+- Getting Started -
+  Prerequisites
+  Node.js 18+
+  npm or yarn
+  Supabase account
+  Stripe account (for payment processing)
+  Environment Setup
+  Create a .env.local file with the following variables:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Installation
+Open http://localhost:3000 to see the application.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Database Setup
+Create a Supabase project
+Run the database schema in schema.sql
+Set up Row Level Security (RLS) policies as needed
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Project Structure -
+  🔐 Authentication
+  The application uses Supabase Authentication with email/password login. Role-based access controls protect admin functionality.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+💳 Payment Processing
+Payments are processed via Stripe Checkout with seamless integration:
 
-## Learn More
+Secure checkout redirection
+Payment confirmation
+Cart clearing upon successful payment
+🚀 Deployment
+The site is deployed on Vercel for optimal Next.js performance.
 
-To learn more about Next.js, take a look at the following resources:
+📱 Responsive Design
+The application is fully responsive with layouts optimized for:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Mobile devices
+Tablets
+Desktop computers
+👥 Contributors
+Philip Jakobsson
+📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.

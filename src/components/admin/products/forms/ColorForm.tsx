@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createColor } from "@/actions/colors";
 import { HexColorPicker } from "react-colorful";

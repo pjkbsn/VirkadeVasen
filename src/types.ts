@@ -79,5 +79,5 @@ export type ProductFormProps = {
   onSuccess?: () => void;
   newProduct?: boolean;
   onAbort?: () => void;
-  isEditing: boolean;
+  isEditing?: boolean;
 };

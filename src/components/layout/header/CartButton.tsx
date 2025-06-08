@@ -10,23 +10,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Image from "next/image";
-
 import { useEffect, useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCartStore } from "@/store/cart-store";
-import { CartItemQuantity } from "@/components/common/CartItemQuantity";
-import { removeCartItem } from "@/actions/cart";
 import { toast } from "sonner";
-import Link from "next/link";
 import { CartItemsDisplay } from "@/components/cart/CartItemsDisplay";
 
 export const CartButton = () => {

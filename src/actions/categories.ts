@@ -1,10 +1,9 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 
 async function getServerSupabase() {
-  return await createClient(cookies());
+  return await createClient();
 }
 
 export async function getCategories() {
