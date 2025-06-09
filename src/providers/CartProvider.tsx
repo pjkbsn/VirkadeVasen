@@ -14,7 +14,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       // User is logged in, fetch their cart
       const fetchCart = async () => {
         try {
-          clearCart();
+          // clearCart();
           const { data, success } = await getCart();
 
           if (success && data) {

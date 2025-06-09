@@ -21,7 +21,7 @@ export default function Header() {
         "z-50 w-full transition-all duration-300",
         isHomePage
           ? "absolute bg-transparent text-white p-4 md:p-5"
-          : "sticky top-0 bg-slate-800 text-white shadow-md p-2 md:p-3 h-20"
+          : "sticky top-0 bg-[rgb(55,81,72)] text-white shadow-md p-2 md:p-3 h-20"
       )}
     >
       <nav className="flex justify-between gap-4">
