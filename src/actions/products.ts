@@ -203,14 +203,14 @@ export async function getProducts(filters?: {
 
     // Apply additional filters if provided
 
-    // Filter by colors
-    if (filters?.colors?.length) {
-      query = query.in("color_id", filters.colors);
-    }
-
     // Filter by max price
     if (filters?.maxPrice) {
       query = query.lte("price", filters.maxPrice);
+    }
+
+    // Filter by colors
+    if (filters?.colors?.length) {
+      query = query.in("color_id", filters.colors);
     }
 
     if (filters?.limit) {
