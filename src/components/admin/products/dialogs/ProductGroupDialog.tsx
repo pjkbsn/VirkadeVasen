@@ -43,7 +43,6 @@ export function ProductGroupDialog({
   const handleProductGroupSuccess = (productId: string) => {
     setCreatedProductId(productId);
     setActiveTab("variant");
-    toast.success("Produktgrupp skapad!");
   };
 
   const handleVariantSuccess = () => {
@@ -51,17 +50,12 @@ export function ProductGroupDialog({
     toast.success("Variant skapad!");
   };
 
-  ///////
-  ///////
-  ///////
-  ///////// NEED FIX, DELETS PRODUCT WHEN CREATED IF DIALOG IS SHUT DOWN
-  ///////
-  ///////
-  ///////
   const handleOpenChange = (newOpen: boolean) => {
+    /* Om dialogen stängs under processen */
     if (!newOpen) {
-      // If product group was created but variant wasn't, clean up
+      /* Om produktgrupp skapats men ingen variant */
       if (createdProductId && activeTab === "variant") {
+        /* Ta bort produktgruppen */
         deleteProductGroup(createdProductId)
           .then(() => {
             toast.info("Produktskapande avbrutet");
@@ -70,11 +64,11 @@ export function ProductGroupDialog({
             toast.error("Kunde inte ta bort produktgrupp");
           });
       }
-      // Reset state when dialog closes
+      /* Återställ state när dialogen stängs */
       setTimeout(() => {
         setCreatedProductId("");
         setActiveTab("product");
-      }, 300); // Wait for dialog close animation
+      }, 300);
     }
     setOpen(newOpen);
   };
@@ -104,15 +98,15 @@ export function ProductGroupDialog({
             </TabsTrigger>
           </TabsList>
 
+          {/* Steg 1: Produktgrupp */}
           <TabsContent value="product" className="mt-4">
             <ProductGroupForm
-              productGroup={undefined} // Always creating new in this dialog
               initialCategories={categories}
               onSuccess={handleProductGroupSuccess}
-              onVariantClick={() => createdProductId && setActiveTab("variant")}
             />
           </TabsContent>
 
+          {/* Steg 2: Produkt/variant */}
           <TabsContent value="variant" className="mt-4">
             {createdProductId && (
               <ProductForm
@@ -120,7 +114,6 @@ export function ProductGroupDialog({
                 initialColors={colors}
                 onSuccess={() => {
                   handleVariantSuccess();
-                  // Optional: close dialog after creating variant
                   setOpen(false);
                 }}
                 onAbort={() => {
