@@ -53,7 +53,10 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className="p-2 align-middle whitespace-nowrap"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -74,7 +77,10 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className="p-2 align-middle whitespace-nowrap"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -98,7 +104,7 @@ export function DataTable<TData, TValue>({
       </div>
       {/* Add pagination controls */}
       <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="flex-1 text-sm text-muted-foreground pl-5">
           Visar{" "}
           {table.getState().pagination.pageIndex *
             table.getState().pagination.pageSize +
@@ -111,7 +117,7 @@ export function DataTable<TData, TValue>({
           )}{" "}
           av {table.getFilteredRowModel().rows.length} resultat
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 pr-5">
           <Button
             variant="outline"
             size="sm"

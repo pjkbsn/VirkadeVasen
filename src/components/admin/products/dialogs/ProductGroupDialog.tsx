@@ -38,8 +38,6 @@ export function ProductGroupDialog({
     ? productGroups.find((pg) => pg.id === createdProductId)
     : undefined;
 
-  console.log("Skapad produktgrupp: ", createdProductGroup);
-
   const handleProductGroupSuccess = (productId: string) => {
     setCreatedProductId(productId);
     setActiveTab("variant");
@@ -76,8 +74,8 @@ export function ProductGroupDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-4">
           <DialogTitle>
             {activeTab === "product"
               ? "Skapa produktgrupp"
@@ -90,7 +88,7 @@ export function ProductGroupDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="product">Produktgrupp</TabsTrigger>
             <TabsTrigger value="variant" disabled={!createdProductId}>

@@ -13,10 +13,12 @@ export default async function ProductPage() {
   // console.log("Prices:", prices);
 
   return (
-    <main className="container mx-auto py-8 w-full">
-      <div className="mb-6 sm:order-1">
-        <h1 className="text-3xl font-bold mb-2">Våra produkter</h1>
-        <p className="text-gray-600 mb-6">
+    <main className="container mx-auto px-6 py-6 sm:py-8 w-full">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
+          Våra produkter
+        </h1>
+        <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6">
           Utforska vårt sortiment av handgjorda produkter skapade med omsorg och
           kärlek.
         </p>
