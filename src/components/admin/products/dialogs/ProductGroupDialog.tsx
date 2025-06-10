@@ -17,14 +17,14 @@ import { toast } from "sonner";
 import { deleteProductGroup } from "@/actions/products";
 
 type ProductGroupDialogProps = {
-  productGroups: ProductGroups[];
+  productGroups?: ProductGroups[];
   categories: Category[];
   colors: Color[];
   children: React.ReactNode;
 };
 
 export function ProductGroupDialog({
-  productGroups,
+  // productGroups,
   categories,
   colors,
   children,
@@ -34,9 +34,9 @@ export function ProductGroupDialog({
   const [activeTab, setActiveTab] = useState("product");
 
   // Find the created product group if any
-  const createdProductGroup = createdProductId
-    ? productGroups.find((pg) => pg.id === createdProductId)
-    : undefined;
+  // const createdProductGroup = createdProductId
+  //   ? productGroups.find((pg) => pg.id === createdProductId)
+  //   : undefined;
 
   const handleProductGroupSuccess = (productId: string) => {
     setCreatedProductId(productId);
