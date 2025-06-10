@@ -1,14 +1,10 @@
 import { getProductGroups, getProducts } from "@/actions/products";
 import { getCategories } from "@/actions/categories";
 import { getColors } from "@/actions/colors";
-// import { NewProductClient } from "./client";
 import { ProductGroupDialog } from "@/components/admin/products/dialogs/ProductGroupDialog";
 import { ProductDialog } from "@/components/admin/products/dialogs/ProductDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-// import { ProductTable } from "@/components/admin/products/table/ProductTable";
-// import { DataTable } from "@/components/admin/products/table/data-table";
-// import { columns } from "@/components/admin/products/table/columns";
 import { ProductDataTableClient } from "@/components/admin/products/table/ProductDataTableClient";
 
 export default async function ProductsPage() {
@@ -23,18 +19,18 @@ export default async function ProductsPage() {
   const colorsData = colors.success ? colors.data : [];
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto px-4 py-6 sm:py-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
         <h1 className="text-2xl font-bold">Produkter</h1>
-        <div className="flex gap-2">
-          {/* These will be client components that handle the dialogs */}
+        <div className="flex flex-wrap w-full sm:w-auto gap-2">
           <ProductGroupDialog
             productGroups={productGroups.success ? productGroups.data : []}
             categories={categories.success ? categories.data : []}
             colors={colorsData}
           >
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Skapa produktgrupp + produkt
+            <Button className="w-full sm:w-auto text-sm">
+              <Plus className="mr-2 h-4 w-4 flex-shrink-0" /> Skapa produktgrupp
+              + produkt
             </Button>
           </ProductGroupDialog>
 
@@ -42,13 +38,15 @@ export default async function ProductsPage() {
             productGroups={productGroups.success ? productGroups.data : []}
             colors={colorsData}
           >
-            <Button variant="outline">
-              <Plus className="mr-2 h-4 w-4" /> Lägg till produkt
+            <Button variant="outline" className="w-full sm:w-auto text-sm">
+              <Plus className="mr-2 h-4 w-4 flex-shrink-0" /> Lägg till produkt
             </Button>
           </ProductDialog>
         </div>
       </div>
-      <ProductDataTableClient data={productsData} colors={colorsData} />
+      <div className="overflow-auto rounded-md border">
+        <ProductDataTableClient data={productsData} colors={colorsData} />
+      </div>
     </div>
   );
 }

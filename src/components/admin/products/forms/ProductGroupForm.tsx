@@ -44,15 +44,15 @@ type ProductGroupFormProps = {
   productGroup?: ProductGroups & { categoryId?: string };
   initialCategories: Category[];
   onSuccess: (id: string) => void;
-  onVariantClick: () => void;
+  // onVariantClick: () => void;
 };
 
 export const ProductGroupForm = ({
   productGroup,
   initialCategories,
   onSuccess,
-  onVariantClick,
-}: ProductGroupFormProps) => {
+}: // onVariantClick,
+ProductGroupFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
@@ -131,8 +131,6 @@ export const ProductGroupForm = ({
 
       if (productGroupId && onSuccess) {
         onSuccess(productGroupId);
-
-        onVariantClick();
       }
     } catch (error: unknown) {
       console.error("Form submission error:", error);

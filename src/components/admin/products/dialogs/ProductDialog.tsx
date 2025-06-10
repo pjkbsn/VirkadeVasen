@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 
 type AddProductDialogProps = {
@@ -40,7 +40,7 @@ export function ProductDialog({
     : undefined;
 
   const handleSuccess = () => {
-    toast.success("Produkt skapad!");
+    // toast.success("Produkt skapad!");
     // Optional: close the dialog
     // setOpen(false);
   };
@@ -56,7 +56,7 @@ export function ProductDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Lägg till produkt</DialogTitle>
         </DialogHeader>

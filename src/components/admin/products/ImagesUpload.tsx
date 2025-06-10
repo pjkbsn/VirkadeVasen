@@ -64,7 +64,7 @@ export const ImagesUpload = ({
       // Add to our array of image URLs
       setImageUrls((prev) => [...prev, publicUrl]);
 
-      toast.success("Image uploaded successfully");
+      toast.success("Bilden har laddats upp");
     } catch (error: unknown) {
       console.error("Error uploading image:", error);
       toast.error(

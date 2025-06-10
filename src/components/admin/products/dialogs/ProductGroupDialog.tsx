@@ -17,14 +17,14 @@ import { toast } from "sonner";
 import { deleteProductGroup } from "@/actions/products";
 
 type ProductGroupDialogProps = {
-  productGroups: ProductGroups[];
+  productGroups?: ProductGroups[];
   categories: Category[];
   colors: Color[];
   children: React.ReactNode;
 };
 
 export function ProductGroupDialog({
-  productGroups,
+  // productGroups,
   categories,
   colors,
   children,
@@ -34,16 +34,13 @@ export function ProductGroupDialog({
   const [activeTab, setActiveTab] = useState("product");
 
   // Find the created product group if any
-  const createdProductGroup = createdProductId
-    ? productGroups.find((pg) => pg.id === createdProductId)
-    : undefined;
-
-  console.log("Skapad produktgrupp: ", createdProductGroup);
+  // const createdProductGroup = createdProductId
+  //   ? productGroups.find((pg) => pg.id === createdProductId)
+  //   : undefined;
 
   const handleProductGroupSuccess = (productId: string) => {
     setCreatedProductId(productId);
     setActiveTab("variant");
-    toast.success("Produktgrupp skapad!");
   };
 
   const handleVariantSuccess = () => {
@@ -51,17 +48,12 @@ export function ProductGroupDialog({
     toast.success("Variant skapad!");
   };
 
-  ///////
-  ///////
-  ///////
-  ///////// NEED FIX, DELETS PRODUCT WHEN CREATED IF DIALOG IS SHUT DOWN
-  ///////
-  ///////
-  ///////
   const handleOpenChange = (newOpen: boolean) => {
+    /* Om dialogen stängs under processen */
     if (!newOpen) {
-      // If product group was created but variant wasn't, clean up
+      /* Om produktgrupp skapats men ingen variant */
       if (createdProductId && activeTab === "variant") {
+        /* Ta bort produktgruppen */
         deleteProductGroup(createdProductId)
           .then(() => {
             toast.info("Produktskapande avbrutet");
@@ -70,11 +62,11 @@ export function ProductGroupDialog({
             toast.error("Kunde inte ta bort produktgrupp");
           });
       }
-      // Reset state when dialog closes
+      /* Återställ state när dialogen stängs */
       setTimeout(() => {
         setCreatedProductId("");
         setActiveTab("product");
-      }, 300); // Wait for dialog close animation
+      }, 300);
     }
     setOpen(newOpen);
   };
@@ -82,8 +74,8 @@ export function ProductGroupDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-4">
           <DialogTitle>
             {activeTab === "product"
               ? "Skapa produktgrupp"
@@ -96,7 +88,7 @@ export function ProductGroupDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-2">
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="product">Produktgrupp</TabsTrigger>
             <TabsTrigger value="variant" disabled={!createdProductId}>
@@ -104,15 +96,15 @@ export function ProductGroupDialog({
             </TabsTrigger>
           </TabsList>
 
+          {/* Steg 1: Produktgrupp */}
           <TabsContent value="product" className="mt-4">
             <ProductGroupForm
-              productGroup={undefined} // Always creating new in this dialog
               initialCategories={categories}
               onSuccess={handleProductGroupSuccess}
-              onVariantClick={() => createdProductId && setActiveTab("variant")}
             />
           </TabsContent>
 
+          {/* Steg 2: Produkt/variant */}
           <TabsContent value="variant" className="mt-4">
             {createdProductId && (
               <ProductForm
@@ -120,7 +112,6 @@ export function ProductGroupDialog({
                 initialColors={colors}
                 onSuccess={() => {
                   handleVariantSuccess();
-                  // Optional: close dialog after creating variant
                   setOpen(false);
                 }}
                 onAbort={() => {

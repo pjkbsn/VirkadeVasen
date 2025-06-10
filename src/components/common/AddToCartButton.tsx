@@ -58,9 +58,9 @@ export const AddToCartButton = ({ product }: AddToCartButtonProps) => {
         if (!result.success) {
           useCartStore.getState().removeItem(product.id);
 
-          toast.error(result.error || "Failed to add to cart");
+          toast.error(result.error || "Kunde inte lägga till i varukorgen");
         } else {
-          toast.success("Added to cart!");
+          toast.success("Tillagd i varukorgen");
         }
       }
     } catch (error: unknown) {

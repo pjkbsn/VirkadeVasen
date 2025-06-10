@@ -70,7 +70,7 @@ export function ProductDetails({
       {relatedProducts.length > 0 && (
         <div className="flex flex-col items-center mt-30 gap-5">
           <h1 className="font-sans font-bold underline">
-            Upptäck mer väsen i samma färg
+            Upptäck liknande väsen
           </h1>
           <div className="w-full max-w-6xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 p-4">

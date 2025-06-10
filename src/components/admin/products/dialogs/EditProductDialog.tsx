@@ -44,11 +44,10 @@ export function EditProductDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Product: {product.product_groups.name}</DialogTitle>
         </DialogHeader>
-
         <ProductForm
           productId={product.product_groups.id}
           initialColors={colors}

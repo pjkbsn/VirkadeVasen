@@ -30,10 +30,10 @@ export const CartItemsDisplay = ({ cartItems }: { cartItems: CartItem[] }) => {
     try {
       const result = await removeCartItem(id);
       if (!result.success) {
-        toast.error("Failed to remove item");
+        toast.error("Kunde inte ta bort produkten");
         useCartStore.getState().addItem(currentItem);
       } else {
-        toast.success("Successfully removed item");
+        toast.success("Produkten har tagits bort");
       }
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : "Något gick fel");
