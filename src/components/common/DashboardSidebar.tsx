@@ -25,20 +25,20 @@ export const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
   const sideBarNavItems = {
     admin: [
       {
-        title: "Översikt",
+        title: "Hantera produkter",
         url: "/admin",
         icon: Home,
       },
-      {
-        title: "Beställningar",
-        url: "/admin/orders",
-        icon: Inbox,
-      },
-      {
-        title: "Hantera produkter",
-        url: "/admin/products",
-        icon: Calendar,
-      },
+      // {
+      //   title: "Beställningar",
+      //   url: "/admin/orders",
+      //   icon: Inbox,
+      // },
+      // {
+      //   title: "Hantera produkter",
+      //   url: "/admin/products",
+      //   icon: Calendar,
+      // },
     ],
     profile: [
       {
